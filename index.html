@@ -3,314 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>True Chats - Privacy Messaging</title>
-    <!-- Custom Font for Username -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <title>True Chats - Ultimate Hub</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- 1. LOGIN & AUTHENTICATION (CAT ANIMATION)  -->
-    <!-- ========================================== -->
-    <div id="auth-container" class="auth-wrapper">
-        <div class="login-box glass-effect smooth-edges">
-            
-            <!-- Cat Animation Area -->
-            <div class="cat-wrapper">
+    <!-- 1. NC LOADING ANIMATION OVERLAY -->
+    <div id="nc-loading" class="loading-overlay">
+        <div class="nc-pulse-logo">
+            <h2 class="nc-font">NC</h2>
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring delay"></div>
+        </div>
+        <p class="loading-text">Initializing True Chats Engine...</p>
+    </div>
+
+    <!-- 2. AUTHENTICATION CONTAINER -->
+    <div id="auth-container" class="auth-wrapper hidden">
+        <div class="login-box glass-effect">
+            <!-- Peekaboo Cat Animation HTML -->
+            <div class="cat-container" id="cat-container">
+                <div class="cat-ear ear-left"></div>
+                <div class="cat-ear ear-right"></div>
                 <div class="cat-head">
-                    <div class="cat-ears"></div>
-                    <div class="cat-eyes"><div class="pupil"></div><div class="pupil"></div></div>
+                    <div class="cat-eye eye-left"><div class="pupil"></div></div>
+                    <div class="cat-eye eye-right"><div class="pupil"></div></div>
                     <div class="cat-nose"></div>
                 </div>
-                <div class="cat-paws">
-                    <div class="paw left-paw"></div>
-                    <div class="paw right-paw"></div>
-                </div>
+                <div class="cat-paw paw-left"></div>
+                <div class="cat-paw paw-right"></div>
             </div>
 
-            <!-- Login Form -->
-            <form id="login-form">
-                <div class="input-group">
-                    <input type="text" id="username" placeholder="Username (New Users)" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="email" placeholder="Email or #ID" required autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Password" required>
-                </div>
-                
-                <div id="generated-id-display" class="hidden">
-                    Your Unique ID: <span id="new-user-id" class="highlight-text"></span>
-                </div>
+            <div class="auth-tabs">
+                <button id="tab-login" class="auth-tab active">Existing User</button>
+                <button id="tab-register" class="auth-tab">New User</button>
+            </div>
 
+            <!-- Existing User Login Form -->
+            <form id="login-form" class="auth-form">
+                <input type="text" id="login-id" placeholder="Enter your #ID or Email" required autocomplete="off">
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="button" id="btn-login" class="btn-primary">Secure Login</button>
+            </form>
+
+            <!-- New User Registration Form -->
+            <form id="register-form" class="auth-form hidden">
+                <input type="text" id="reg-username" placeholder="Choose a Username" autocomplete="off">
+                <input type="email" id="reg-email" placeholder="Email Address" required autocomplete="off">
+                <input type="password" id="reg-password" placeholder="Create Password" required>
                 <button type="button" id="btn-generate-join" class="btn-primary">Generate #ID & Join</button>
-                <button type="button" id="btn-login" class="btn-secondary">Login</button>
             </form>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. NC LOADING ANIMATION OVERLAY            -->
-    <!-- ========================================== -->
-    <div id="nc-loading" class="loading-overlay hidden">
-        <div class="nc-pulse-logo">
-            <h2>NC</h2>
-            <div class="pulse-ring"></div>
+    <!-- 3. INTERACTIVE ONBOARDING TUTORIAL OVERLAY -->
+    <div id="onboarding-overlay" class="tutorial-overlay hidden">
+        <div class="tutorial-tooltip">
+            <h3 id="tour-title">Instructions</h3>
+            <p id="tour-desc">Loading tutorial dynamic content...</p>
+            <div class="tour-buttons">
+                <button id="btn-tour-skip" class="btn-secondary">Skip Tour</button>
+                <button id="btn-tour-next" class="btn-primary">Next Step</button>
+            </div>
         </div>
+        <div id="tour-highlight" class="tour-highlight hidden"></div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. MAIN APPLICATION LAYOUT                 -->
-    <!-- ========================================== -->
+    <!-- 4. MAIN DASHBOARD LAYOUT -->
     <div id="main-app" class="app-layout hidden">
-        
-        <!-- HEADER -->
-        <header class="smooth-edges highlight-bg">
-            <div class="header-left">
-                <button id="qr-piping-icon">🔳</button> <!-- QR Scanner/Show Icon -->
+        <header id="app-header" class="smooth-edges highlight-bg">
+            <h2 class="gradient-text">True Chats</h2>
+            <div id="header-lock-zone" class="header-center">
+                <span class="lock-hint">Hold to Lock 🔒</span>
             </div>
-            
-            <div class="header-center">
-                <div class="profile-pic-container">
-                    <img src="default-dp.png" alt="Profile" id="user-dp">
-                    <span id="golden-star" class="golden-star glow hidden">⭐</span> <!-- 5 Referrals Star -->
-                </div>
-                <div id="header-username" class="gradient-text custom-font">
-                    Username
-                </div>
-            </div>
-
-            <div class="header-right">
-                <button id="search-btn">🔍</button>
-                <button id="notification-btn">
-                    🔔 <span id="notif-dot" class="dot-badge hidden">0</span>
-                </button>
-                <button id="settings-menu">☰</button>
+            <div id="tour-profile" class="profile-pic-container">
+                <div id="user-avatar" class="avatar-circle">U</div>
+                <div id="golden-star" class="golden-star hidden">⭐</div>
             </div>
         </header>
 
-        <!-- CENTER DISPLAY USERNAME (Ex: Accepted Request Notification) -->
-        <div id="center-action-username" class="hidden"></div>
-
-        <!-- MAIN CONTENT AREA -->
-        <main id="content-area" class="content-area">
-            
-            <div id="public-bg-elements" class="bg-elements pleasant-animations"></div>
-            
-            <!-- A. CHATS LIST TAB -->
-            <div id="tab-content-chats" class="tab-content active">
-                <div class="chat-list">
-                    <!-- Dynamic Chat Items inject here -->
+        <main class="content-area">
+            <!-- CHATS SCREEN -->
+            <div id="screen-chats" class="tab-screen">
+                <div id="tour-search" class="search-bar-container">
+                    <input type="text" id="search-users" placeholder="Enter friend's #ID and hit Enter..." class="search-input">
+                </div>
+                <div id="chats-list" class="list-container">
+                    <div class="empty-state">No conversations yet. Enter an #ID above to start.</div>
                 </div>
             </div>
 
-            <!-- B. GLIMPSE TAB -->
-            <div id="tab-content-glimpse" class="tab-content hidden">
-                <div class="glimpse-feed"></div>
-                <button id="floating-cam-btn" class="floating-btn">📷</button>
-            </div>
-
-            <!-- C. CALLS LOG TAB -->
-            <div id="tab-content-calls" class="tab-content hidden">
-                <div class="call-logs-list">
-                    <!-- Call logs inject here -->
+            <!-- GLIMPSE SCREEN -->
+            <div id="screen-glimpse" class="tab-screen hidden">
+                <div id="tour-glimpse" class="glimpse-dashboard">
+                    <h3>Glimpse Dynamic Score</h3>
+                    <div class="score-circle">
+                        <span id="display-glimpse-score">0</span>
+                    </div>
+                    <button id="btn-add-score" class="btn-primary">+1 Glimpse Power</button>
                 </div>
             </div>
 
-            <!-- D. GAMES TAB -->
-            <div id="tab-content-games" class="tab-content hidden">
-                <div class="games-list">
-                    <div class="game-card">Game 1 <button>Play Bot</button> <button>Play Friend</button></div>
-                    <div class="game-card">Game 2 <button>Play Bot</button> <button>Play Friend</button></div>
-                    <div class="game-card">Game 3 <button>Play Bot</button> <button>Play Friend</button></div>
+            <!-- CALLS SCREEN -->
+            <div id="screen-calls" class="tab-screen hidden">
+                <div id="tour-calls" class="list-container">
+                    <div class="call-log-item">
+                        <div>
+                            <h4>Recent Communication Hub</h4>
+                            <p>All active voice/video sync logs appear here</p>
+                        </div>
+                    </div>
+                    <div id="active-call-logs"></div>
+                </div>
+            </div>
+
+            <!-- GAMES SCREEN -->
+            <div id="screen-games" class="tab-screen hidden">
+                <div class="games-grid">
+                    <div class="game-card" onclick="alert('Launching Retro Arcade Engine...')">
+                        <div class="game-icon">🕹️</div>
+                        <h4>Retro Arena</h4>
+                    </div>
+                    <div class="game-card" onclick="alert('Connecting to Strategy Lobby...')">
+                        <div class="game-icon">♟️</div>
+                        <h4>Tactical Chess</h4>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- FOOTER NAVIGATION -->
-        <footer class="smooth-edges highlight-bg">
+        <footer id="app-footer" class="smooth-edges highlight-bg">
             <button class="nav-item active" data-target="chats">💬 Chats</button>
             <button class="nav-item" data-target="glimpse">📷 Glimpse</button>
             <button class="nav-item" data-target="calls">📞 Calls</button>
             <button class="nav-item" data-target="games">🎮 Games</button>
         </footer>
-
     </div>
 
-    <!-- ========================================== -->
-    <!-- 4. ACTIVE CHAT INTERFACE                   -->
-    <!-- ========================================== -->
-    <div id="active-chat-ui" class="full-screen-overlay hidden">
+    <!-- 5. REAL-TIME CHAT PANEL CONTAINER -->
+    <div id="chat-window" class="chat-window-overlay hidden">
         <header class="chat-header">
-            <button id="back-to-chats">⬅</button>
-            <img src="opponent-dp.png" alt="Opponent" id="opponent-profile" class="clickable-profile">
-            <h3 id="chat-username" class="gradient-text">Opponent</h3>
-            
-            <div class="chat-actions">
-                <button id="start-voice-call">📞</button>
-                <button id="start-video-call">🎥</button>
-                <button id="privacy-toggle-btn">Move to Dark</button> <!-- Toggles to Move to Public -->
+            <button id="btn-back-chats" class="btn-icon">⬅️</button>
+            <div class="chat-user-info">
+                <h3 id="active-chat-name">Target Connection</h3>
+                <span id="active-chat-status">Secure Active Socket</span>
             </div>
+            <button id="btn-trigger-call" class="btn-icon">📞</button>
         </header>
-        
-        <div id="messages-container" class="messages-area">
-            <!-- Messages inject here -->
-        </div>
-
+        <div id="messages-container" class="messages-area"></div>
         <div class="chat-input-area">
-            <!-- Media Save Toggle -->
-            <label class="switch">
-                <input type="checkbox" id="save-enable-toggle" checked>
-                <span class="slider">Save</span>
-            </label>
-            
-            <!-- Disappearing Timer with View Once -->
-            <select id="disappear-timer">
-                <option value="off">Off</option>
-                <option value="view-once">View Once (Shatter)</option>
-                <option value="24">24h</option>
-                <option value="48">48h</option>
-                <option value="72">72h</option>
-            </select>
-
-            <button id="attach-photo">📎</button>
-            <input type="text" id="message-input" placeholder="Message...">
-            
-            <!-- AI Smart Reply Button -->
-            <button id="ai-smart-reply" title="Generate AI Reply">✨</button>
-
-            <button id="send-voice-msg">🎤</button>
-            <button id="send-msg-btn">➤</button>
+            <input type="text" id="message-input" placeholder="Type an encrypted message..." autocomplete="off">
+            <button id="btn-send-message" class="btn-primary-round">➤</button>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 5. ACTIVE CALL INTERFACE (VIDEO/VOICE)     -->
-    <!-- ========================================== -->
-    <div id="active-call-ui" class="full-screen-overlay hidden">
-        <div class="call-top-center">
-            <img src="opponent-dp.png" alt="Caller" id="call-profile-img">
-            <h2 id="call-status">Connecting...</h2>
+    <!-- 6. CALLING LAYER OVERLAY -->
+    <div id="calling-overlay" class="call-overlay hidden">
+        <div class="caller-info">
+            <div class="caller-avatar-large">📞</div>
+            <h2 id="call-screen-name">Connecting Voice Link</h2>
+            <p id="call-status-text">Signal Stream Synchronizing...</p>
         </div>
-
-        <video id="remoteVideo" autoplay playsinline class="full-screen-video"></video>
-        <div class="pip-container">
-            <video id="localVideo" autoplay playsinline muted></video>
-        </div>
-
-        <div class="call-controls bottom-center">
-            <button id="mute-call">Mute</button>
-            <button id="hold-call">Hold</button>
-            <button id="switch-camera">Switch Cam</button>
-            <button id="stop-camera">Stop Cam</button>
-            <button id="end-call" class="btn-danger">End</button>
+        <div class="call-actions">
+            <button id="btn-accept-call" class="btn-call btn-accept">✔</button>
+            <button id="btn-end-call" class="btn-call btn-end">✖</button>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 6. ALL MODALS & OVERLAYS                   -->
-    <!-- ========================================== -->
-    
-    <!-- Privacy Lock Modal (Triggered on 1.5s hold) -->
+    <!-- 7. PRIVACY DIALOG MODAL -->
     <div id="privacy-lock-modal" class="modal hidden">
-        <div class="modal-content smooth-edges">
-            <h3>Enter PIN / Pattern</h3>
-            <input type="password" id="privacy-pin" placeholder="****">
-            <button id="unlock-privacy">Unlock Love UI 🖤</button>
-        </div>
-    </div>
-
-    <!-- Search Modal -->
-    <div id="search-modal" class="modal hidden">
         <div class="modal-content">
-            <input type="text" id="search-users-input" placeholder="Search by 1-2 letters...">
-            <div id="search-results"></div>
-            <button class="close-modal">Close</button>
-        </div>
-    </div>
-
-    <!-- Notifications Modal -->
-    <div id="notifications-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Notifications</h3>
-            <div id="notif-list"></div>
-            <button class="close-modal">Close</button>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Settings</h3>
-            <input type="text" id="edit-username" placeholder="Edit Username">
-            
-            <div class="my-stats highlight-bg">
-                <h4>My Stats</h4>
-                <p>Glimpse Score: <span class="score-value">840 🔥</span></p>
-                <p>Referrals: <span class="score-value">3 / 5 (Need 2 for ⭐)</span></p>
+            <h3>Enter PIN to Unlock Love UI 🖤</h3>
+            <input type="password" id="privacy-pin" placeholder="****" maxlength="4">
+            <div class="modal-actions">
+                <button class="close-modal btn-secondary">Abrupt</button>
+                <button id="unlock-privacy" class="btn-primary">Unlock</button>
             </div>
-            
-            <hr>
-            <h4>Change Password</h4>
-            <input type="password" id="old-password" placeholder="Old Password">
-            <input type="password" id="new-password" placeholder="New Password">
-            <button id="change-pwd-btn">Update</button>
-
-            <hr>
-            <h4>Advanced Privacy</h4>
-            <div class="setting-toggle">
-                <span>Ghost Mode 👻 (Hide Online)</span>
-                <label class="switch">
-                    <input type="checkbox" id="ghost-mode-toggle">
-                    <span class="slider round"></span>
-                </label>
-            </div>
-            <button id="block-mute-list-btn">Block & Mute Lists</button>
-
-            <hr>
-            <button id="referral-btn" class="highlight-bg">Refer a Friend (Boost Score)</button>
-            <button id="logout-btn" class="btn-danger">Logout</button>
-            <button class="close-modal">Close</button>
-        </div>
-    </div>
-
-    <!-- QR Modal -->
-    <div id="qr-modal" class="modal hidden">
-        <div class="modal-content">
-            <h3>Your QR Code</h3>
-            <div id="my-qr-code">[QR]</div>
-            <p>Swipe to Scan a Friend's QR</p>
-            <button class="close-modal">Close</button>
-        </div>
-    </div>
-
-    <!-- Opponent Profile Modal -->
-    <div id="user-profile-modal" class="modal hidden">
-        <div class="modal-content profile-card smooth-edges">
-            <div class="profile-header-bg"></div>
-            <img src="opponent-dp.png" alt="Profile" class="large-profile-pic">
-            <h2 class="gradient-text custom-font">Opponent Name</h2>
-            <p class="user-id-text">#OPP5678</p>
-            
-            <div class="glimpse-score-container highlight-bg">
-                <span class="score-label">Glimpse Score</span>
-                <span class="score-value">1250 🔥</span>
-            </div>
-
-            <div class="profile-music-player">
-                <p>🎵 Playing Profile Vibe</p>
-                <audio id="profile-bgm-audio" controls controlsList="nodownload noplaybackrate">
-                    <source src="custom-song.mp3" type="audio/mpeg">
-                </audio>
-            </div>
-
-            <div class="profile-actions">
-                <button class="btn-primary">Add Friend +</button>
-                <button class="btn-secondary">Message</button>
-            </div>
-            <button class="close-modal">Close</button>
         </div>
     </div>
 
