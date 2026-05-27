@@ -1,18 +1,21 @@
 /* ========================================================
-   TRUE CHATS - MASTER JAVASCRIPT ENGINE
+   TRUE CHATS - MASTER JAVASCRIPT ENGINE (MOBILE OPTIMIZED)
    ======================================================== */
 
-// 1. SUPABASE CONFIGURATION (నీ క్రెడెన్షియల్స్ ఇక్కడ పెట్టు)
+// 1. SUPABASE CONFIGURATION
 const SUPABASE_URL = 'https://ctrdxfjqbseddtoirweb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
 
 let supabase;
 try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+        console.error("Supabase CDN ఇండెక్స్ ఫైల్‌లో మిస్ అయింది!");
+    }
 } catch (error) {
-    console.error("Supabase Error:", error);
+    console.error("Supabase Initialization Error:", error);
 }
-
 
 // 2. STATE MANAGEMENT
 let currentUser = null;
@@ -24,14 +27,18 @@ let peerConnection = null;
 window.addEventListener('DOMContentLoaded', () => {
     console.log("True Chats Engine Initialized...");
     
-    // Simulate NC Loading for 3 seconds
+    // SAFE LOADING: ఏ ఎర్రర్ ఉన్నా సరే కచ్చితంగా 3 సెకన్లలో లోడింగ్ స్క్రీన్ క్లోజ్ అవుతుంది
     setTimeout(() => {
-        document.getElementById('nc-loading').classList.add('hidden');
-        document.getElementById('auth-container').classList.remove('hidden');
+        const loadingScreen = document.getElementById('nc-loading');
+        const authContainer = document.getElementById('auth-container');
+        if (loadingScreen) loadingScreen.classList.add('hidden');
+        if (authContainer) authContainer.classList.remove('hidden');
     }, 3000);
 
-    initAuthListeners();
-    initAppNavigation();
+    // ఎలిమెంట్స్ మిస్ అయినా కోడ్ క్రాష్ అవ్వకుండా సురక్షితంగా రన్ చేసే విధానం
+    try { initAuthListeners(); } catch (e) { console.error("Auth Listeners Error:", e); }
+    try { initAppNavigation(); } catch (e) { console.error("Navigation Error:", e); }
+    try { initMobilePrivacyHold(); } catch (e) { console.error("Privacy Hold Error:", e); }
 });
 
 /* ========================================================
@@ -43,29 +50,42 @@ function initAuthListeners() {
     const catContainer = document.getElementById('cat-container');
 
     // Cat Peekaboo logic
-    loginIdInput.addEventListener('focus', () => catContainer.classList.add('cat-peek'));
-    loginIdInput.addEventListener('blur', () => catContainer.classList.remove('cat-peek'));
+    if (loginIdInput && catContainer) {
+        loginIdInput.addEventListener('focus', () => catContainer.classList.add('cat-peek'));
+        loginIdInput.addEventListener('blur', () => catContainer.classList.remove('cat-peek'));
+    }
 
     // Cat Cover Eyes logic (Password focus)
-    loginPassInput.addEventListener('focus', () => {
-        catContainer.classList.add('cat-peek');
-        catContainer.classList.add('cat-cover-eyes');
-    });
-    loginPassInput.addEventListener('blur', () => {
-        catContainer.classList.remove('cat-peek');
-        catContainer.classList.remove('cat-cover-eyes');
-    });
+    if (loginPassInput && catContainer) {
+        loginPassInput.addEventListener('focus', () => {
+            catContainer.classList.add('cat-peek');
+            catContainer.classList.add('cat-cover-eyes');
+        });
+        loginPassInput.addEventListener('blur', () => {
+            catContainer.classList.remove('cat-peek');
+            catContainer.classList.remove('cat-cover-eyes');
+        });
+    }
 
     // Toggle Tabs
-    document.getElementById('tab-register').onclick = () => {
-        document.getElementById('login-form').classList.add('hidden');
-        document.getElementById('register-form').classList.remove('hidden');
-        document.getElementById('tab-login').classList.remove('active');
-        document.getElementById('tab-register').classList.add('active');
-    };
+    const tabRegister = document.getElementById('tab-register');
+    const tabLogin = document.getElementById('tab-login');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
 
-    document.getElementById('btn-generate-join').onclick = handleRegistration;
-    document.getElementById('btn-login').onclick = handleLogin;
+    if (tabRegister && tabLogin && loginForm && registerForm) {
+        tabRegister.onclick = () => {
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            tabLogin.classList.remove('active');
+            tabRegister.classList.add('active');
+        };
+    }
+
+    const btnGenJoin = document.getElementById('btn-generate-join');
+    const btnLogin = document.getElementById('btn-login');
+    if (btnGenJoin) btnGenJoin.onclick = handleRegistration;
+    if (btnLogin) btnLogin.onclick = handleLogin;
 }
 
 // Generate Unique #ID Logic
@@ -75,6 +95,7 @@ function generateUniqueId(username) {
 }
 
 async function handleRegistration() {
+    if (!supabase) return alert("Database disconnected!");
     const user = document.getElementById('reg-username').value;
     const email = document.getElementById('reg-email').value;
     const pass = document.getElementById('reg-password').value;
@@ -93,6 +114,7 @@ async function handleRegistration() {
 }
 
 async function handleLogin() {
+    if (!supabase) return alert("Database disconnected!");
     const idOrMail = document.getElementById('login-id').value;
     const pass = document.getElementById('login-password').value;
 
@@ -121,7 +143,8 @@ function launchApp() {
     
     // Check for 5 referrals star
     if (currentUser.referrals >= 5) {
-        document.getElementById('golden-star').classList.remove('hidden');
+        const goldStar = document.getElementById('golden-star');
+        if (goldStar) goldStar.classList.remove('hidden');
     }
 
     setupRealtimeSubscriptions();
@@ -133,7 +156,8 @@ function initAppNavigation() {
         item.onclick = () => {
             const tab = item.getAttribute('data-tab');
             document.querySelectorAll('.tab-screen').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`screen-${tab}`).classList.remove('hidden');
+            const targetScreen = document.getElementById(`screen-${tab}`);
+            if (targetScreen) targetScreen.classList.remove('hidden');
             navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
         };
@@ -141,21 +165,35 @@ function initAppNavigation() {
 }
 
 /* ========================================================
-   PRIVACY CHAT & DARK UI (1.5s Hold Feature)
+   PRIVACY CHAT & DARK UI (1.5s Mobile Touch Hold)
    ======================================================== */
 let holdTimer;
-const profileZone = document.getElementById('header-profile-zone');
+function initMobilePrivacyHold() {
+    const profileZone = document.getElementById('header-profile-zone');
+    if (!profileZone) return;
 
-profileZone.onmousedown = () => {
+    // డెస్క్‌టాప్ మౌస్ సపోర్ట్
+    profileZone.onmousedown = startHold;
+    profileZone.onmouseup = clearHold;
+
+    // మొబైల్ టచ్ స్క్రీన్ సపోర్ట్ (ఇది నీకు ఇప్పుడు పక్కాగా పనిచేస్తుంది!)
+    profileZone.addEventListener('touchstart', startHold, { passive: true });
+    profileZone.addEventListener('touchend', clearHold);
+}
+
+function startHold() {
     holdTimer = setTimeout(() => {
         openPrivacyLock();
     }, 1500);
-};
+}
 
-profileZone.onmouseup = () => clearTimeout(holdTimer);
+function clearHold() {
+    clearTimeout(holdTimer);
+}
 
 function openPrivacyLock() {
-    document.getElementById('security-lock-gate').classList.remove('hidden');
+    const lockGate = document.getElementById('security-lock-gate');
+    if (lockGate) lockGate.classList.remove('hidden');
 }
 
 // PIN Verification for Private Chat
@@ -168,7 +206,6 @@ pinInputs.forEach((input, index) => {
 });
 
 function verifySecurityCode() {
-    // Default PIN 1234 for testing
     let code = "";
     pinInputs.forEach(i => code += i.value);
     
@@ -176,19 +213,22 @@ function verifySecurityCode() {
         enterDarkVault();
     } else {
         alert("Access Denied!");
-        document.getElementById('security-lock-gate').classList.add('hidden');
+        const lockGate = document.getElementById('security-lock-gate');
+        if (lockGate) lockGate.classList.add('hidden');
     }
 }
 
 function enterDarkVault() {
     isPrivateMode = true;
-    document.getElementById('security-lock-gate').classList.add('hidden');
-    document.body.classList.add('pure-dark-theme-override');
-    document.getElementById('screenshot-inhibitor-mask-layer').classList.remove('hidden');
+    const lockGate = document.getElementById('security-lock-gate');
+    const maskLayer = document.getElementById('screenshot-inhibitor-mask-layer');
     
-    // Anti-Screenshot logic (HTML/CSS only, browser limitations apply)
+    if (lockGate) lockGate.classList.add('hidden');
+    document.body.classList.add('pure-dark-theme-override');
+    if (maskLayer) maskLayer.classList.remove('hidden');
+    
     setTimeout(() => {
-        document.getElementById('screenshot-inhibitor-mask-layer').classList.add('hidden');
+        if (maskLayer) maskLayer.classList.add('hidden');
     }, 2000);
 }
 
@@ -196,23 +236,27 @@ function enterDarkVault() {
    SEARCH & REQUEST SYSTEM
    ======================================================== */
 const searchInput = document.getElementById('input-search-query');
-searchInput.oninput = async (e) => {
-    const query = e.target.value;
-    if (query.length >= 1) {
-        const { data } = await supabase
-            .from('users')
-            .select('*')
-            .ilike('username', `%${query}%`);
-        
-        renderSearchResults(data);
-    }
-};
+if (searchInput) {
+    searchInput.oninput = async (e) => {
+        if (!supabase) return;
+        const query = e.target.value;
+        if (query.length >= 1) {
+            const { data } = await supabase
+                .from('users')
+                .select('*')
+                .ilike('username', `%${query}%`);
+            
+            renderSearchResults(data);
+        }
+    };
+}
 
 function renderSearchResults(users) {
     const target = document.getElementById('search-results-target');
+    if (!target) return;
     target.innerHTML = "";
     users.forEach(u => {
-        if (u.id === currentUser.id) return;
+        if (currentUser && u.id === currentUser.id) return;
         const div = document.createElement('div');
         div.className = "search-item glass-effect";
         div.innerHTML = `
@@ -224,34 +268,49 @@ function renderSearchResults(users) {
 }
 
 async function sendRequest(targetId, btn) {
+    if (!supabase) return;
     btn.innerText = "Sent✓";
     btn.disabled = true;
-    // Logic to insert into notifications table in Supabase
     await supabase.from('notifications').insert([
         { from_user: currentUser.id, to_user: targetId, type: 'request' }
     ]);
 }
 
 /* ========================================================
-   WEBRTC CALLING (Basic Setup)
+   WEBRTC CALLING
    ======================================================== */
 async function startCall(isVideo = false) {
-    document.getElementById('webrtc-call-interface-layer').classList.remove('hidden');
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: isVideo, 
-        audio: true 
-    });
-    document.getElementById('webrtc-local-video-element').srcObject = stream;
+    const callLayer = document.getElementById('webrtc-call-interface-layer');
+    const localVideo = document.getElementById('webrtc-local-video-element');
+    const stateLabel = document.getElementById('call-link-state-label');
+
+    if (callLayer) callLayer.classList.remove('hidden');
     
-    // Signaling logic using Supabase Realtime goes here
-    document.getElementById('call-link-state-label').innerText = "Ringing...";
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: isVideo, 
+            audio: true 
+        });
+        if (localVideo) localVideo.srcObject = stream;
+    } catch (err) {
+        console.error("Media Error:", err);
+    }
+    
+    if (stateLabel) stateLabel.innerText = "Ringing...";
 }
 
-document.getElementById('btn-hardware-terminate-session').onclick = () => {
-    const stream = document.getElementById('webrtc-local-video-element').srcObject;
-    stream.getTracks().forEach(track => track.stop());
-    document.getElementById('webrtc-call-interface-layer').classList.add('hidden');
-};
+const btnTerminate = document.getElementById('btn-hardware-terminate-session');
+if (btnTerminate) {
+    btnTerminate.onclick = () => {
+        const localVideo = document.getElementById('webrtc-local-video-element');
+        if (localVideo && localVideo.srcObject) {
+            const stream = localVideo.srcObject;
+            stream.getTracks().forEach(track => track.stop());
+        }
+        const callLayer = document.getElementById('webrtc-call-interface-layer');
+        if (callLayer) callLayer.classList.add('hidden');
+    };
+}
 
 /* ========================================================
    MESSAGING STATUS DOTS
@@ -267,6 +326,7 @@ function getStatusColor(status) {
    REALTIME SUBSCRIPTIONS
    ======================================================== */
 function setupRealtimeSubscriptions() {
+    if (!supabase || !currentUser) return;
     supabase
         .channel('public:notifications')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `to_user=eq.${currentUser.id}` }, payload => {
@@ -277,16 +337,24 @@ function setupRealtimeSubscriptions() {
 
 function updateNotificationCount() {
     const badge = document.getElementById('global-notif-count');
-    let count = parseInt(badge.innerText) + 1;
+    if (!badge) return;
+    let count = parseInt(badge.innerText || "0") + 1;
     badge.innerText = count;
     badge.classList.remove('hidden');
 }
 
 // 3 Lines Settings Toggle
-document.getElementById('btn-trigger-settings').onclick = () => {
-    document.getElementById('panel-settings-modal').classList.toggle('hidden');
-};
+const btnSettings = document.getElementById('btn-trigger-settings');
+if (btnSettings) {
+    btnSettings.onclick = () => {
+        const panelSettings = document.getElementById('panel-settings-modal');
+        if (panelSettings) panelSettings.classList.toggle('hidden');
+    };
+}
 
-document.getElementById('btn-system-logout').onclick = () => {
-    location.reload();
-};
+const btnLogout = document.getElementById('btn-system-logout');
+if (btnLogout) {
+    btnLogout.onclick = () => {
+        location.reload();
+    };
+}
