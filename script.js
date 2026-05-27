@@ -8,12 +8,23 @@ const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 // ==========================================
 // 2. LOADING SCREEN LOGIC (Fixed)
 // ==========================================
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("Script Running...");
+    
+    // 2 సెకన్ల తర్వాత లోడింగ్ స్క్రీన్ హైడ్ చేసి, లాగిన్ స్క్రీన్ చూపించాలి
     setTimeout(() => {
-        document.getElementById('nc-loading').classList.add('hidden');
-        document.getElementById('auth-container').classList.remove('hidden');
-    }, 2500);
+        const loader = document.getElementById('nc-loading');
+        const auth = document.getElementById('auth-container');
+        
+        if (loader) loader.style.display = 'none';
+        if (auth) {
+            auth.classList.remove('hidden');
+            auth.style.display = 'block';
+            console.log("Auth Screen Displayed!");
+        }
+    }, 2000);
 });
+
 
 // ==========================================
 // 3. AUTH & NAVIGATION LOGIC
