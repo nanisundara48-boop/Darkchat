@@ -1,26 +1,39 @@
 // ==========================================
-// 1. SUPABASE PIPELINE ENCRYPTION STAGE
+// 1. FAIL-SAFE LOADING SCREEN KILLER (Fixed)
+// ==========================================
+// ఏ ఎర్రర్ వచ్చినా ఇది ఆపకుండా లాగిన్ స్క్రీన్ కి తీసుకెళ్తుంది
+setTimeout(() => {
+    const loader = document.getElementById('nc-loading');
+    const authContainer = document.getElementById('auth-container');
+    
+    if(loader) {
+        loader.style.opacity = '0'; // ఫేడ్ అవుట్
+        
+        setTimeout(() => {
+            loader.classList.add('hidden'); // లోడింగ్ స్క్రీన్ ని దాచేయడం
+            if(authContainer) {
+                authContainer.classList.remove('hidden'); // లాగిన్ ఫామ్ ని చూపించడం
+            }
+        }, 500);
+    }
+}, 2000); // కచ్చితంగా 2 సెకన్ల తర్వాత ఇది రన్ అవుతుంది
+
+// ==========================================
+// 2. SUPABASE PIPELINE ENCRYPTION STAGE
 // ==========================================
 const supabaseUrl = 'https://ctrdxfjqbseddtoirweb.supabase.co';
 const supabaseKey = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+let supabase;
 
-let MY_USER_ROW_ID = null; 
-let MY_UNIQUE_ID = null;   
-let MY_USERNAME = null;    
-let ACTIVE_CHAT_PARTNER_UNIQUE_ID = null; 
+try {
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+} catch (error) {
+    console.error("Supabase Client Load అవ్వలేదు! ఒకసారి Internet లేదా HTML లో CDN లింక్ చెక్ చెయ్.", error);
+}
 
-// INITIAL RUN-TIME RESOLUTION: LOADING LAYER KILLER
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        const loader = document.getElementById('nc-loading');
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.classList.add('hidden');
-            document.getElementById('auth-container').classList.remove('hidden');
-        }, 500);
-    }, 2000); // 2 Seconds Cinematic Load
-});
+// ఇక్కడి నుండి నీ పాత కోడ్ అంతా మామూలుగా ఉంచేయ్:
+// document.getElementById('tab-login').addEventListener('click', () => { ...
+
 
 // ==========================================
 // 2. AUTHENTICATION TAB MAPPING
