@@ -159,5 +159,16 @@ body { background: var(--bg-light); height: 100vh; overflow: hidden; color: var(
 .panel-header input { flex: 1; border: none; background: #f0f2f5; padding: 10px 15px; border-radius: 20px; outline: none; }
 
 /* Anti-Screenshot Overlay */
-.protective-screen-inhibitor-layer { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; color: white; text-align: center; }
+.protective-screen-inhibitor-layer { 
+    position: fixed; 
+    inset: 0; 
+    background: #000; 
+    z-index: 9999; 
+    display: none !important; /* మొదట దీన్ని దాచి ఉంచు */
+    justify-content: center; 
+    align-items: center; 
+    color: white; 
+    text-align: center; 
+}
+
 .inhibitor-message-container i { font-size: 50px; color: #ff4757; margin-bottom: 20px; }
