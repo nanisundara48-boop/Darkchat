@@ -5,7 +5,14 @@
 // 1. SUPABASE CONFIGURATION (నీ క్రెడెన్షియల్స్ ఇక్కడ పెట్టు)
 const SUPABASE_URL = 'https://ctrdxfjqbseddtoirweb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let supabase;
+try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (error) {
+    console.error("Supabase Error:", error);
+}
+
 
 // 2. STATE MANAGEMENT
 let currentUser = null;
