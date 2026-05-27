@@ -353,7 +353,6 @@ function updateNotificationCount() {
     badge.innerText = count;
     badge.classList.remove('hidden');
 }
-
 // 3 Lines Settings Toggle
 const btnSettings = document.getElementById('btn-trigger-settings');
 if (btnSettings) {
@@ -368,4 +367,48 @@ if (btnLogout) {
     btnLogout.onclick = () => {
         location.reload();
     };
+/* ========================================================
+   MODALS & PANELS TOGGLE LOGIC (Search, Notifications)
+   ======================================================== */
+
+// --- Search Modal ---
+const btnSearch = document.getElementById('btn-trigger-search');
+const searchModal = document.getElementById('panel-search-modal');
+const btnCloseSearch = document.getElementById('btn-close-search');
+
+if (btnSearch && searchModal) {
+    btnSearch.onclick = () => {
+        searchModal.classList.remove('hidden');
+        document.getElementById('input-search-query').focus(); // ఓపెన్ అవ్వగానే కీబోర్డ్ వస్తుంది
+    };
 }
+if (btnCloseSearch && searchModal) {
+    btnCloseSearch.onclick = () => searchModal.classList.add('hidden');
+}
+
+// --- Notifications Modal ---
+const btnNotif = document.getElementById('btn-trigger-notifications');
+const notifModal = document.getElementById('panel-notifications-modal');
+const btnCloseNotif = document.getElementById('btn-close-notifications');
+
+if (btnNotif && notifModal) {
+    btnNotif.onclick = () => {
+        notifModal.classList.remove('hidden');
+        // నోటిఫికేషన్స్ చూసాక బ్యాడ్జ్ హైడ్ అవ్వడానికి
+        const badge = document.getElementById('global-notif-count');
+        if (badge) badge.classList.add('hidden'); 
+    };
+}
+if (btnCloseNotif && notifModal) {
+    btnCloseNotif.onclick = () => notifModal.classList.add('hidden');
+}
+
+// --- Close Settings Panel ---
+const btnCloseSettings = document.getElementById('btn-close-settings');
+const panelSettings = document.getElementById('panel-settings-modal');
+if (btnCloseSettings && panelSettings) {
+    btnCloseSettings.onclick = () => panelSettings.classList.add('hidden');
+}
+
+
+
