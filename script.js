@@ -27,19 +27,28 @@ let peerConnection = null;
 window.addEventListener('DOMContentLoaded', () => {
     console.log("True Chats Engine Initialized...");
     
-    // SAFE LOADING: ఏ ఎర్రర్ ఉన్నా సరే కచ్చితంగా 3 సెకన్లలో లోడింగ్ స్క్రీన్ క్లోజ్ అవుతుంది
+    // పాత పద్ధతి కాకుండా, నేరుగా స్టైల్ ని మార్చేద్దాం
     setTimeout(() => {
-        const loadingScreen = document.getElementById('nc-loading');
-        const authContainer = document.getElementById('auth-container');
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (authContainer) authContainer.classList.remove('hidden');
+        const loader = document.getElementById('nc-loading');
+        const auth = document.getElementById('auth-container');
+        
+        if (loader) {
+            loader.style.display = 'none'; // CSS క్లాస్ తో సంబంధం లేకుండా హైడ్ చేస్తుంది
+        }
+        if (auth) {
+            auth.style.display = 'flex'; // నేరుగా ఫ్లెక్స్ బాక్స్ లా చూపిస్తుంది
+            auth.classList.remove('hidden');
+        }
+        console.log("Loading Finished!");
     }, 3000);
 
-    // ఎలిమెంట్స్ మిస్ అయినా కోడ్ క్రాష్ అవ్వకుండా సురక్షితంగా రన్ చేసే విధానం
-    try { initAuthListeners(); } catch (e) { console.error("Auth Listeners Error:", e); }
-    try { initAppNavigation(); } catch (e) { console.error("Navigation Error:", e); }
-    try { initMobilePrivacyHold(); } catch (e) { console.error("Privacy Hold Error:", e); }
+    try { initAuthListeners(); } catch (e) { console.error(e); }
+    try { initAppNavigation(); } catch (e) { console.error(e); }
+    try { initMobilePrivacyHold(); } catch (e) { console.error(e); }
 });
+
+
+    
 
 /* ========================================================
    AUTH & CAT ANIMATIONS
