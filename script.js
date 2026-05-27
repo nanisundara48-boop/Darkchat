@@ -1,22 +1,40 @@
 // ==========================================
-// 1. FAIL-SAFE LOADING SCREEN KILLER (Fixed)
+// 1. FAIL-SAFE APP INITIALIZER (GUARANTEED LOGIN OPEN)
 // ==========================================
-// ఏ ఎర్రర్ వచ్చినా ఇది ఆపకుండా లాగిన్ స్క్రీన్ కి తీసుకెళ్తుంది
-setTimeout(() => {
-    const loader = document.getElementById('nc-loading');
-    const authContainer = document.getElementById('auth-container');
-    
-    if(loader) {
-        loader.style.opacity = '0'; // ఫేడ్ అవుట్
+window.onload = function() {
+    // కరెక్ట్ గా 2.5 సెకన్ల పాటు ఆ రాయల్ NC యానిమేషన్ చూపిస్తుంది
+    setTimeout(() => {
+        const loader = document.getElementById('nc-loading');
+        const authContainer = document.getElementById('auth-container');
         
-        setTimeout(() => {
-            loader.classList.add('hidden'); // లోడింగ్ స్క్రీన్ ని దాచేయడం
-            if(authContainer) {
-                authContainer.classList.remove('hidden'); // లాగిన్ ఫామ్ ని చూపించడం
-            }
-        }, 500);
-    }
-}, 2000); // కచ్చితంగా 2 సెకన్ల తర్వాత ఇది రన్ అవుతుంది
+        if(loader) {
+            loader.style.opacity = '0'; // స్మూత్ గా ఫేడ్ అవుతుంది
+            
+            setTimeout(() => {
+                loader.classList.add('hidden'); // లోడింగ్ మాయం
+                if(authContainer) {
+                    authContainer.classList.remove('hidden'); // లాగిన్/సైన్అప్ ఓపెన్
+                }
+            }, 500); 
+        }
+    }, 2500); 
+};
+
+// ==========================================
+// 2. SUPABASE CONFIGURATION
+// ==========================================
+const supabaseUrl = 'https://ctrdxfjqbseddtoirweb.supabase.co';
+const supabaseKey = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
+let supabase;
+
+try {
+    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+} catch (error) {
+    console.error("Supabase Error:", error);
+}
+
+// మిగతా కోడ్ అంతా దీని కింద మామూలుగా ఉంచు...
+
 
 // ==========================================
 // 2. SUPABASE PIPELINE ENCRYPTION STAGE
