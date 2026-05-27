@@ -244,12 +244,11 @@ function enterDarkVault() {
     if (lock) lock.classList.add('hidden');
     document.body.classList.add('pure-dark-theme-override');
     
+    // ఇక్కడ సెక్యూరిటీ మాస్క్ ని ఫోర్స్ ఫుల్ గా తీసేయడానికి
     const mask = document.getElementById('screenshot-inhibitor-mask-layer');
     if (mask) {
-        mask.classList.remove('hidden');
-        mask.style.display = 'flex';
-        // 2 సెకన్ల తర్వాత మాస్క్ హైడ్ అవుతుంది
-        setTimeout(() => mask.style.setProperty('display', 'none', 'important'), 2000);
+        mask.style.display = 'none'; // ఇది ఇక్కడ ఉంటే ఎప్పుడూ కనిపించదు
+        mask.classList.add('hidden');
     }
 }
 
