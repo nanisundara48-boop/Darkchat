@@ -1,199 +1,91 @@
-// ==========================================
-// 1. SUPABASE DATABASE CONFIGURATION
-// ==========================================
+// SUPABASE CONFIG (Keep your keys same)
 const supabaseUrl = 'https://ctrdxfjqbseddtoirweb.supabase.co';
 const supabaseKey = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
 const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// ==========================================
-// 2. AUTHENTICATION & CAT ANIMATION LOGIC
-// ==========================================
-const authContainer = document.getElementById('auth-container');
-const ncLoading = document.getElementById('nc-loading');
-const mainApp = document.getElementById('main-app');
-const passwordInput = document.getElementById('password');
-const leftPaw = document.querySelector('.left-paw');
-const rightPaw = document.querySelector('.right-paw');
-
-// Cat Paws Animation on Password Focus
-passwordInput.addEventListener('focus', () => {
-    leftPaw.style.transform = 'translateY(-40px) rotate(-10deg)';
-    rightPaw.style.transform = 'translateY(-40px) rotate(10deg)';
+// --- 1. AUTH TAB SWITCHING ---
+document.getElementById('tab-login').addEventListener('click', () => {
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('tab-login').classList.add('active');
+    document.getElementById('tab-register').classList.remove('active');
 });
 
-passwordInput.addEventListener('blur', () => {
-    leftPaw.style.transform = 'translateY(0) rotate(0)';
-    rightPaw.style.transform = 'translateY(0) rotate(0)';
+document.getElementById('tab-register').addEventListener('click', () => {
+    document.getElementById('register-form').classList.remove('hidden');
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('tab-register').classList.add('active');
+    document.getElementById('tab-login').classList.remove('active');
 });
 
-// App Login Sequence
-function loginToApp() {
-    authContainer.classList.add('hidden');
-    ncLoading.classList.remove('hidden');
-    setTimeout(() => {
-        ncLoading.classList.add('hidden');
-        mainApp.classList.remove('hidden');
-    }, 2500);
+// --- 2. ONBOARDING TUTORIAL LOGIC ---
+let tourStep = 0;
+const tourData = [
+    { title: "Chatting", desc: "Search friends by #ID and start talking!", target: "tab-chats" },
+    { title: "Glimpse", desc: "Share moments and increase your Glimpse Score!", target: "tab-glimpse" },
+    { title: "Profile", desc: "Hold your username to enter Love UI mode.", target: "tour-profile" }
+];
+
+function startTutorial() {
+    document.getElementById('onboarding-overlay').classList.remove('hidden');
+    showStep();
 }
 
-// Register & Join Logic
-document.getElementById('btn-generate-join').addEventListener('click', async () => {
-    const userVal = document.getElementById('username').value;
-    const emailVal = document.getElementById('email').value;
-    const passVal = document.getElementById('password').value;
+function showStep() {
+    const step = tourData[tourStep];
+    document.getElementById('tour-title').innerText = step.title;
+    document.getElementById('tour-desc').innerText = step.desc;
+}
 
-    if (userVal && emailVal && passVal) {
-        // Unique #ID Generation
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-        const uniqueId = `#${userVal.substring(0, 3).toUpperCase()}${randomNum}`;
-
-        // Save to Supabase
-        const { data, error } = await supabase
-            .from('users')
-            .insert([{ username: userVal, email: emailVal, unique_id: uniqueId, password: passVal, glimpse_score: 0 }]);
-
-        if (error) {
-            alert("Registration failed: " + error.message);
-        } else {
-            document.getElementById('new-user-id').innerText = uniqueId;
-            document.getElementById('generated-id-display').classList.remove('hidden');
-            loginToApp();
-        }
+document.getElementById('btn-tour-next').addEventListener('click', () => {
+    tourStep++;
+    if (tourStep < tourData.length) {
+        showStep();
     } else {
-        alert("Please fill all details.");
+        document.getElementById('onboarding-overlay').classList.add('hidden');
     }
 });
 
-document.getElementById('btn-login').addEventListener('click', loginToApp);
+document.getElementById('btn-tour-skip').addEventListener('click', () => {
+    document.getElementById('onboarding-overlay').classList.add('hidden');
+});
 
-// ==========================================
-// 3. NAVIGATION & TABS LOGIC
-// ==========================================
-const navItems = document.querySelectorAll('.nav-item');
-const tabContents = document.querySelectorAll('.tab-content');
+// --- 3. LOGIN & REGISTER LOGIC ---
+// (Use the previous insert logic here, but call startTutorial() only for New Users)
+async function handleNewUserSuccess() {
+    loginToApp();
+    setTimeout(() => startTutorial(), 3000); // Start tour after loading
+}
 
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navItems.forEach(nav => nav.classList.remove('active'));
-        tabContents.forEach(tab => tab.classList.add('hidden'));
-        item.classList.add('active');
-        document.getElementById(`tab-content-${item.dataset.target}`).classList.remove('hidden');
+// --- 4. CALLING SYSTEM (Mockup) ---
+function triggerCall(userName) {
+    const callHTML = `
+        <div id="active-call" class="call-overlay">
+            <div class="caller-info">
+                <img src="default-dp.png" class="caller-img">
+                <h2>${userName}</h2>
+                <p>Calling...</p>
+            </div>
+            <div class="call-actions">
+                <button class="btn-call btn-end" onclick="endCall()">✖</button>
+                <button class="btn-call btn-accept">✔</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', callHTML);
+}
+
+function endCall() {
+    document.getElementById('active-call').remove();
+}
+
+// --- 5. TAB NAVIGATION ---
+document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(`tab-${target}`).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
     });
 });
-
-// ==========================================
-// 4. PRIVACY LOCK (1.5 SEC HOLD) & THEMES
-// ==========================================
-const headerUsername = document.getElementById('header-username');
-const privacyLockModal = document.getElementById('privacy-lock-modal');
-let holdTimer;
-
-function startHold() {
-    holdTimer = setTimeout(() => {
-        privacyLockModal.classList.remove('hidden');
-    }, 1500);
-}
-
-function stopHold() {
-    clearTimeout(holdTimer);
-}
-
-headerUsername.addEventListener('mousedown', startHold);
-headerUsername.addEventListener('mouseup', stopHold);
-headerUsername.addEventListener('touchstart', startHold);
-headerUsername.addEventListener('touchend', stopHold);
-
-document.getElementById('unlock-privacy').addEventListener('click', () => {
-    const pin = document.getElementById('privacy-pin').value;
-    if (pin === '1234') { // Example PIN
-        privacyLockModal.classList.add('hidden');
-        document.body.classList.toggle('love-ui-mode');
-        alert("Privacy Mode Activated 🖤");
-    } else {
-        alert("Wrong PIN!");
-    }
-});
-
-// ==========================================
-// 5. CHAT & MESSAGING LOGIC
-// ==========================================
-const sendMsgBtn = document.getElementById('send-msg-btn');
-const msgInput = document.getElementById('message-input');
-
-sendMsgBtn.addEventListener('click', async () => {
-    const text = msgInput.value;
-    const disappear = document.getElementById('disappear-timer').value;
-    
-    if (text.trim() !== "") {
-        const { error } = await supabase
-            .from('messages')
-            .insert([{ 
-                text: text, 
-                sender_id: 'current_user', 
-                receiver_id: 'target_user',
-                timer: disappear
-            }]);
-
-        if (!error) {
-            msgInput.value = "";
-            console.log("Message Sent!");
-        }
-    }
-});
-
-// Real-time listener for New Messages
-supabase
-    .channel('messages')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-        const notifDot = document.getElementById('notif-dot');
-        notifDot.classList.remove('hidden');
-        notifDot.innerText = parseInt(notifDot.innerText) + 1;
-        // Logic to show popup notification
-    })
-    .subscribe();
-
-// ==========================================
-// 6. MODAL CONTROL HELPERS
-// ==========================================
-function bindModal(triggerId, modalId) {
-    const trigger = document.getElementById(triggerId);
-    const modal = document.getElementById(modalId);
-    if (trigger && modal) {
-        trigger.addEventListener('click', () => modal.classList.remove('hidden'));
-        const closeBtn = modal.querySelector('.close-modal');
-        if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
-    }
-}
-
-bindModal('search-btn', 'search-modal');
-bindModal('notification-btn', 'notifications-modal');
-bindModal('settings-menu', 'settings-modal');
-bindModal('qr-piping-icon', 'qr-modal');
-
-// Close modal on outside click
-window.onclick = (event) => {
-    if (event.target.classList.contains('modal')) {
-        event.target.classList.add('hidden');
-    }
-};
-
-// ==========================================
-// 7. GLIMPSE SCORE & STAR LOGIC
-// ==========================================
-// This updates the UI with the score from database
-async function fetchUserStats() {
-    const { data, error } = await supabase
-        .from('users')
-        .select('glimpse_score, referrals')
-        .eq('username', 'current_user')
-        .single();
-
-    if (data) {
-        document.querySelectorAll('.score-value').forEach(el => {
-            if (el.innerText.includes('🔥')) el.innerText = `${data.glimpse_score} 🔥`;
-        });
-        if (data.referrals >= 5) {
-            document.getElementById('golden-star').classList.remove('hidden');
-        }
-    }
-}
