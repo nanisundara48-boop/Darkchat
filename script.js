@@ -1,24 +1,25 @@
 // ==========================================
-// 1. FAIL-SAFE APP INITIALIZER (GUARANTEED LOGIN OPEN)
+// 1. BULLETPROOF LOADING SCREEN KILLER
 // ==========================================
-window.onload = function() {
-    // కరెక్ట్ గా 2.5 సెకన్ల పాటు ఆ రాయల్ NC యానిమేషన్ చూపిస్తుంది
-    setTimeout(() => {
-        const loader = document.getElementById('nc-loading');
-        const authContainer = document.getElementById('auth-container');
+// ఇది దేనికోసం వెయిట్ చేయదు, 2.5 సెకన్లకి పక్కాగా లాగిన్ పేజీ ఓపెన్ చేస్తుంది
+setTimeout(() => {
+    const loader = document.getElementById('nc-loading');
+    const authContainer = document.getElementById('auth-container');
+    
+    if (loader) {
+        loader.style.opacity = '0'; // స్మూత్ గా ఫేడ్ అవుతుంది
         
-        if(loader) {
-            loader.style.opacity = '0'; // స్మూత్ గా ఫేడ్ అవుతుంది
+        setTimeout(() => {
+            loader.style.display = 'none'; // స్క్రీన్ నుండి పూర్తిగా తీసేస్తుంది
+            loader.classList.add('hidden');
             
-            setTimeout(() => {
-                loader.classList.add('hidden'); // లోడింగ్ మాయం
-                if(authContainer) {
-                    authContainer.classList.remove('hidden'); // లాగిన్/సైన్అప్ ఓపెన్
-                }
-            }, 500); 
-        }
-    }, 2500); 
-};
+            if (authContainer) {
+                authContainer.classList.remove('hidden');
+                authContainer.style.display = 'flex'; // డైరెక్ట్ గా లాగిన్ బాక్స్ ని చూపిస్తుంది
+            }
+        }, 500); 
+    }
+}, 2500);
 
 // ==========================================
 // 2. SUPABASE CONFIGURATION
@@ -33,7 +34,6 @@ try {
     console.error("Supabase Error:", error);
 }
 
-// మిగతా కోడ్ అంతా దీని కింద మామూలుగా ఉంచు...
 
 
 // ==========================================
