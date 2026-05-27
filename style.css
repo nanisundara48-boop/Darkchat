@@ -1,0 +1,221 @@
+/* ========================================== */
+/* 1. GLOBAL STYLES & THEMES                  */
+/* ========================================== */
+:root {
+    --primary-bg: #f0f2f5;
+    --accent-color: #6e8efb;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --text-main: #333;
+    --grad: linear-gradient(135deg, #6e8efb, #a777e3);
+    --love-bg: #0f0f0f;
+    --love-accent: #ff4d4d;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+    background: var(--primary-bg);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hidden { display: none !important; }
+.smooth-edges { border-radius: 20px; }
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.gradient-text {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+}
+
+/* ========================================== */
+/* 2. LOGIN & CAT ANIMATION                   */
+/* ========================================== */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: var(--grad);
+}
+
+.login-box {
+    padding: 30px;
+    width: 320px;
+    text-align: center;
+}
+
+.cat-wrapper {
+    position: relative;
+    height: 100px;
+    margin-bottom: 20px;
+}
+
+.cat-head {
+    width: 80px; height: 70px;
+    background: #333;
+    border-radius: 50% 50% 40% 40%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.cat-eyes {
+    display: flex; justify-content: space-around;
+    padding-top: 25px;
+}
+
+.pupil {
+    width: 12px; height: 12px;
+    background: white; border-radius: 50%;
+}
+
+.cat-paws {
+    position: absolute;
+    width: 100%; bottom: 0;
+    display: flex; justify-content: space-around;
+    transition: 0.3s ease;
+}
+
+.paw {
+    width: 30px; height: 30px;
+    background: #333; border-radius: 50%;
+}
+
+input {
+    width: 100%; padding: 12px;
+    margin: 10px 0; border: none;
+    border-radius: 10px; outline: none;
+}
+
+.btn-primary, .btn-secondary {
+    width: 100%; padding: 12px;
+    border: none; border-radius: 10px;
+    cursor: pointer; margin-top: 10px;
+    font-weight: bold;
+}
+
+.btn-primary { background: #333; color: white; }
+.btn-secondary { background: white; color: #333; }
+
+/* ========================================== */
+/* 3. MAIN APP LAYOUT (Header & Footer)       */
+/* ========================================== */
+.app-layout {
+    display: flex; flex-direction: column;
+    height: 100vh;
+}
+
+header, footer {
+    display: flex; justify-content: space-between;
+    align-items: center; padding: 15px 20px;
+    margin: 10px;
+}
+
+.highlight-bg { background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+.profile-pic-container { position: relative; }
+#user-dp { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+
+.golden-star {
+    position: absolute; top: -5px; right: -5px;
+    font-size: 18px;
+    animation: star-glow 1.5s infinite alternate;
+}
+
+@keyframes star-glow {
+    from { filter: drop-shadow(0 0 2px gold); transform: scale(1); }
+    to { filter: drop-shadow(0 0 8px orange); transform: scale(1.2); }
+}
+
+footer .nav-item {
+    background: none; border: none;
+    font-size: 14px; cursor: pointer;
+    color: #888;
+}
+
+footer .nav-item.active { color: var(--accent-color); font-weight: bold; }
+
+/* ========================================== */
+/* 4. CHAT INTERFACE & MESSAGES               */
+/* ========================================== */
+.full-screen-overlay {
+    position: fixed; inset: 0;
+    background: var(--primary-bg);
+    z-index: 100;
+}
+
+.messages-area {
+    flex: 1; overflow-y: auto;
+    padding: 20px; display: flex; flex-direction: column;
+}
+
+.chat-input-area {
+    display: flex; align-items: center;
+    padding: 15px; background: white;
+    gap: 10px;
+}
+
+#message-input { background: #f0f2f5; flex: 1; }
+
+/* Love UI Mode */
+.love-ui-mode { background: var(--love-bg); color: white; }
+.love-ui-mode .highlight-bg { background: #1a1a1a; color: white; }
+.love-ui-mode .gradient-text { background: var(--love-accent); -webkit-background-clip: text; }
+
+/* ========================================== */
+/* 5. MODALS                                  */
+/* ========================================== */
+.modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white; padding: 25px;
+    width: 85%; max-width: 400px;
+    border-radius: 25px; text-align: center;
+}
+
+.score-value { font-size: 24px; font-weight: bold; color: orange; }
+
+/* ========================================== */
+/* 6. SWITCH TOGGLE DESIGN                    */
+/* ========================================== */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc; transition: .4s;
+    border-radius: 20px;
+}
+input:checked + .slider { background-color: var(--accent-color); }
+
+/* ========================================== */
+/* 7. LOADING NC ANIMATION                    */
+/* ========================================== */
+.loading-overlay {
+    position: fixed; inset: 0;
+    background: white; display: flex;
+    justify-content: center; align-items: center; z-index: 9999;
+}
+
+.nc-pulse-logo h2 { font-size: 50px; color: #333; position: relative; }
+.pulse-ring {
+    position: absolute; width: 100px; height: 100px;
+    border: 5px solid var(--accent-color);
+    border-radius: 50%; animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
