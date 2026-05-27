@@ -24,31 +24,33 @@ let isPrivateMode = false;
 let peerConnection = null;
 
 // 3. INITIALIZATION & NC LOADING
+
 window.addEventListener('DOMContentLoaded', () => {
     console.log("True Chats Engine Initialized...");
     
-    // పాత పద్ధతి కాకుండా, నేరుగా స్టైల్ ని మార్చేద్దాం
+    // 3 సెకన్ల తర్వాత లోడింగ్ స్క్రీన్ ఫోర్స్‌గా తీసేసి లాగిన్ స్క్రీన్ చూపిస్తుంది
     setTimeout(() => {
         const loader = document.getElementById('nc-loading');
-        const auth = document.getElementById('auth-container');
+        const authContainer = document.getElementById('auth-container');
         
         if (loader) {
-            loader.style.display = 'none'; // CSS క్లాస్ తో సంబంధం లేకుండా హైడ్ చేస్తుంది
+            // CSS క్లాసులతో సంబంధం లేకుండా డైరెక్ట్‌గా హైడ్ చేస్తుంది
+            loader.style.setProperty('display', 'none', 'important'); 
         }
-        if (auth) {
-            auth.style.display = 'flex'; // నేరుగా ఫ్లెక్స్ బాక్స్ లా చూపిస్తుంది
-            auth.classList.remove('hidden');
+        
+        if (authContainer) {
+            authContainer.classList.remove('hidden');
+            authContainer.style.setProperty('display', 'flex', 'important');
         }
-        console.log("Loading Finished!");
+        console.log("Loading Screen Cleared. Auth Container Displayed.");
     }, 3000);
 
-    try { initAuthListeners(); } catch (e) { console.error(e); }
-    try { initAppNavigation(); } catch (e) { console.error(e); }
-    try { initMobilePrivacyHold(); } catch (e) { console.error(e); }
+    // నీ మిగతా ఫంక్షన్స్ ఇక్కడ కాల్ అవుతాయి
+    try { initAuthListeners(); } catch(e) { console.error(e); }
+    try { initAppNavigation(); } catch(e) { console.error(e); }
+    try { initMobilePrivacyHold(); } catch(e) { console.error(e); }
 });
 
-
-    
 
 /* ========================================================
    AUTH & CAT ANIMATIONS
