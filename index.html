@@ -2,401 +2,207 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>True Chats - The Ultimate Privacy Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cinzel+Decorative:wght@700&family=Dancing+Script:wght@700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Privacy Messenger | NC</title>
+    <!-- ఐకాన్స్ కోసం FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-    <div id="nc-loading" class="loading-overlay">
-        <div class="nc-pulse-logo">
-            <h2 class="nc-font">NC</h2>
-            <div class="pulse-ring"></div>
-            <div class="pulse-ring delay"></div>
-        </div>
-        <p class="loading-text">Initializing True Chats Engine...</p>
-    </div>
+    <!-- 1. స్క్రీన్‌షాట్ ప్రొటెక్షన్ లేయర్ (ఇది UIని బ్లాక్ చేయకుండా CSSలో ప్లాన్ చేస్తాం) -->
+    <div id="screenshot-protection-layer" class="overlay-hidden"></div>
 
-    <div id="auth-container" class="auth-wrapper hidden">
-        <div class="login-box glass-effect">
-            <div class="cat-container" id="cat-container">
-                <div class="cat-ear ear-left"></div>
-                <div class="cat-ear ear-right"></div>
-                <div class="cat-head">
-                    <div class="cat-eye eye-left"><div class="pupil"></div></div>
-                    <div class="cat-eye eye-right"><div class="pupil"></div></div>
-                    <div class="cat-nose"></div>
-                </div>
-                <div class="cat-paw paw-left"></div>
-                <div class="cat-paw paw-right"></div>
+    <!-- 2. ఆథరైజేషన్ / లాగిన్ పేజీ (Cat Animation తో) -->
+    <section id="auth-section" class="screen active">
+        <div class="auth-container">
+            <div class="cat-animation-wrapper">
+                <!-- క్యాట్ పుల్లింగ్ యానిమేషన్ కోసం ప్లేస్‌హోల్డర్ -->
+                <div class="cat-head"></div>
+                <div class="cat-paws"></div>
             </div>
-
-            <div class="auth-tabs">
-                <button id="tab-login" class="auth-tab active">Existing User</button>
-                <button id="tab-register" class="auth-tab">New User</button>
+            
+            <div class="auth-form-box">
+                <h2>Welcome</h2>
+                <div id="new-user-form">
+                    <input type="text" id="reg-username" placeholder="Choose Username" required>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                    <input type="password" id="reg-pass" placeholder="Set Password" required>
+                    <button class="btn-primary" onclick="generateID()">Generate #ID & Enter</button>
+                </div>
+                
+                <div id="existing-user-form" style="display: none;">
+                    <input type="text" id="login-id" placeholder="Email or #ID" required>
+                    <input type="password" id="login-pass" placeholder="Password" required>
+                    <button class="btn-primary" onclick="loginUser()">Login</button>
+                </div>
+                <p class="toggle-text" onclick="toggleAuth()">Already have an account? Login</p>
             </div>
-
-            <form id="login-form" class="auth-form" onsubmit="return false;">
-                <div class="input-group">
-                    <i class="fas fa-user-shield"></i>
-                    <input type="text" id="login-id" placeholder="Enter Mail or Unique #ID" required autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="login-password" placeholder="Password" required>
-                </div>
-                <button type="button" id="btn-login" class="btn-primary-auth">Secure Login</button>
-            </form>
-
-            <form id="register-form" class="auth-form hidden" onsubmit="return false;">
-                <div class="input-group">
-                    <i class="fas fa-at"></i>
-                    <input type="text" id="reg-username" placeholder="Choose Username" required autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="reg-email" placeholder="Mail Address" required autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <i class="fas fa-key"></i>
-                    <input type="password" id="reg-password" placeholder="Set Password" required>
-                </div>
-                <button type="button" id="btn-generate-join" class="btn-primary-auth">Generate #ID & Join</button>
-            </form>
         </div>
-    </div>
+    </section>
 
-    <div id="main-app" class="app-layout hidden">
-        <header id="app-header" class="smooth-edges highlight-header">
+    <!-- 3. NC లోడింగ్ యానిమేషన్ (లాగిన్ తర్వాత వస్తుంది) -->
+    <section id="nc-loading-screen" class="screen hidden">
+        <div class="loader-content">
+            <div class="nc-spinner"></div>
+            <h3 class="gradient-text">Entering Secure Sanctuary...</h3>
+        </div>
+    </section>
+
+    <!-- 4. ప్రధాన యాప్ ఇంటర్‌ఫేస్ -->
+    <section id="main-app-interface" class="screen hidden">
+        
+        <!-- యాప్ హెడర్ -->
+        <header class="app-header">
             <div class="header-left">
-                <button id="btn-qr-hub" class="btn-header-icon"><i class="fas fa-qrcode"></i></button>
+                <i class="fa-solid fa-qrcode pip-icon" id="qr-trigger" title="Your QR Code"></i>
+                <div class="profile-pic-container">
+                    <img src="default-dp.jpg" alt="Profile" class="user-dp">
+                    <i class="fa-solid fa-star glowing-star hidden" title="Premium User"></i>
+                </div>
+                <!-- 1.5 సెకన్ల హోల్డ్ ఫీచర్ కోసం ఈ ఐడి వాడతాం -->
+                <h3 id="main-username" class="gradient-username">User#1234</h3>
             </div>
             
-            <div id="header-profile-zone" class="header-center">
-                <div class="profile-meta-wrapper">
-                    <div class="avatar-wrapper">
-                        <div id="user-avatar" class="avatar-circle-main">U</div>
-                        <div id="golden-star" class="golden-star-badge hidden"><i class="fas fa-star"></i></div>
-                    </div>
-                    <h3 id="display-profile-username" class="gradient-username-text">User</h3>
-                </div>
-            </div>
-
             <div class="header-right">
-                <button id="btn-trigger-search" class="btn-header-icon"><i class="fas fa-search"></i></button>
-                <div class="notification-badge-container">
-                    <button id="btn-trigger-notifications" class="btn-header-icon"><i class="fas fa-bell"></i></button>
-                    <span id="global-notif-count" class="badge-dot hidden">0</span>
+                <i class="fa-solid fa-magnifying-glass header-icon" id="search-trigger"></i>
+                <div class="notification-wrapper header-icon" id="notif-trigger">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notif-dot">3</span>
                 </div>
-                <button id="btn-trigger-settings" class="btn-header-icon"><i class="fas fa-bars"></i></button>
+                <i class="fa-solid fa-bars header-icon" id="settings-trigger"></i>
             </div>
         </header>
 
-        <main class="content-container">
+        <!-- డైనమిక్ కంటెంట్ ఏరియా (మధ్య భాగం) -->
+        <main id="app-content">
             
-            <div id="screen-chats" class="tab-screen animated-background-elements">
-                <div class="tab-header-title">Active Secure Safehouses</div>
-                <div id="chats-list-target" class="list-render-zone">
-                    <div class="empty-placeholder">No active handshakes found. Use Search or QR to invite connections.</div>
-                </div>
-            </div>
-
-            <div id="screen-glimpse" class="tab-screen hidden">
-                <div class="glimpse-feed-header">
-                    <h4>Glimpse Shared Canvas</h4>
-                    <span class="glimpse-sub">24-hour self-destructing sequences</span>
-                </div>
-                <div id="glimpse-feed-target" class="glimpse-feed-container">
-                    </div>
-                <button id="btn-floating-cam" class="btn-floating-action"><i class="fas fa-camera"></i></button>
-            </div>
-
-            <div id="screen-calls" class="tab-screen hidden">
-                <div class="tab-header-title">Unified Call Registries</div>
-                <div id="calls-log-target" class="call-logs-container">
-                    </div>
-            </div>
-
-            <div id="screen-games" class="tab-screen hidden">
-                <div class="tab-header-title">Cryptographic Gaming Matrix</div>
-                <div class="games-directory-grid">
-                    <div class="game-module-card" data-game="retro">
-                        <div class="game-art"><i class="fas fa-gamepad"></i></div>
-                        <h5>Retro Arena</h5>
-                        <p>Face the automated system entity.</p>
-                        <div class="game-action-row">
-                            <button class="btn-game-play solo" data-mode="bot">vs BOT</button>
-                            <button class="btn-game-play multi" data-mode="friend">vs Friend</button>
+            <!-- CHATS TAB -->
+            <div id="tab-chats" class="tab-content active">
+                <div class="chat-list">
+                    <!-- ఒక చాట్ ఐటెమ్ శాంపిల్ -->
+                    <div class="chat-list-item">
+                        <img src="friend1.jpg" alt="Friend" class="chat-dp">
+                        <div class="chat-info">
+                            <h4>Friend_Name <span class="delivery-status green-dot"></span></h4>
+                            <p>Hi, are we playing today?</p>
                         </div>
-                    </div>
-                    <div class="game-module-card" data-game="chess">
-                        <div class="game-art"><i class="fas fa-chess"></i></div>
-                        <h5>Tactical Chess</h5>
-                        <p>Turn-based secure board conflict.</p>
-                        <div class="game-action-row">
-                            <button class="btn-game-play solo" data-mode="bot">vs BOT</button>
-                            <button class="btn-game-play multi" data-mode="friend">vs Friend</button>
-                        </div>
-                    </div>
-                    <div class="game-module-card" data-game="tictactoe">
-                        <div class="game-art"><i class="fas fa-times-circle"></i></div>
-                        <h5>Tic Tac Toe</h5>
-                        <p>Classic tactical matrix alignment.</p>
-                        <div class="game-action-row">
-                            <button class="btn-game-play solo" data-mode="bot">vs BOT</button>
-                            <button class="btn-game-play multi" data-mode="friend">vs Friend</button>
+                        <div class="chat-meta">
+                            <span class="time">10:45 AM</span>
+                            <!-- కొత్త మెసేజ్ కౌంట్ -->
+                            <span class="msg-count">1</span> 
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
 
-        <footer id="app-footer" class="smooth-edges highlight-footer">
-            <button class="footer-nav-item active" data-tab="chats">
-                <i class="fas fa-comment-alt"></i><span>Chats</span>
-            </button>
-            <button class="footer-nav-item" data-tab="glimpse">
-                <i class="fas fa-camera-retro"></i><span>Glimpse</span>
-            </button>
-            <button class="footer-nav-item" data-tab="calls">
-                <i class="fas fa-phone-alt"></i><span>Calls</span>
-            </button>
-            <button class="footer-nav-item" data-tab="games">
-                <i class="fas fa-dice"></i><span>Games</span>
-            </button>
-        </footer>
-    </div>
-
-    <div id="panel-search-modal" class="fullscreen-overlay-panel hidden">
-        <header class="panel-header">
-            <button id="btn-close-search" class="btn-panel-back"><i class="fas fa-arrow-left"></i></button>
-            <input type="text" id="input-search-query" placeholder="Type letters to decrypt directory..." autocomplete="off">
-        </header>
-        <div id="search-results-target" class="panel-results-list">
-            </div>
-    </div>
-
-    <div id="panel-notifications-modal" class="fullscreen-overlay-panel hidden">
-        <header class="panel-header">
-            <button id="btn-close-notifications" class="btn-panel-back"><i class="fas fa-arrow-left"></i></button>
-            <h3>Notification Vault</h3>
-        </header>
-        <div id="notifications-list-target" class="panel-results-list">
-            </div>
-    </div>
-
-    <div id="panel-settings-modal" class="fullscreen-overlay-panel hidden">
-        <header class="panel-header">
-            <button id="btn-close-settings" class="btn-panel-back"><i class="fas fa-arrow-left"></i></button>
-            <h3>Security & Preferences</h3>
-        </header>
-        <div class="settings-scroll-body">
-            <div class="settings-card glass-effect">
-                <label>Modify Encrypted Username</label>
-                <input type="text" id="settings-username-input" class="settings-field">
-                <button id="btn-save-username" class="btn-settings-action">Update Handle</button>
-            </div>
-            <div class="settings-card glass-effect">
-                <label>Rotate Authentication Key</label>
-                <input type="password" id="settings-old-pass" placeholder="Verify Current Password" class="settings-field">
-                <input type="password" id="settings-new-pass" placeholder="New Chosen Password" class="settings-field hidden">
-                <button id="btn-rotate-password" class="btn-settings-action">Validate Origin Key</button>
-            </div>
-            <div class="settings-card glass-effect status-center">
-                <h5>Referral Progression Engine</h5>
-                <p>Provide validation to network nodes to escalate ranking parameters.</p>
-                <div id="referral-code-badge" class="referral-display-node">REF-XXXXX</div>
-                <div class="referral-stats">Weekly Completed Connections: <strong id="weekly-referral-count">0</strong>/5</div>
-            </div>
-            <button id="btn-system-logout" class="btn-danger-logout"><i class="fas fa-power-off"></i> Purge Active Session</button>
-        </div>
-    </div>
-
-    <div id="panel-qr-modal" class="fullscreen-overlay-panel hidden">
-        <header class="panel-header">
-            <button id="btn-close-qr" class="btn-panel-back"><i class="fas fa-arrow-left"></i></button>
-            <h3>Identity Matrix Node</h3>
-        </header>
-        <div class="qr-panel-container">
-            <div class="qr-swipe-viewport" id="qr-swipe-container">
-                <div class="qr-slide" id="qr-slide-generator">
-                    <h5>Your Decryption Node</h5>
-                    <div id="qrcode-canvas-target" class="qr-box-wrapper"></div>
-                    <p>Let connections scan this code to link systems instantly.</p>
-                </div>
-                <div class="qr-slide hidden" id="qr-slide-scanner">
-                    <h5>Scanning Sensor Interface</h5>
-                    <div class="scanner-simulation-box">
-                        <div class="scanner-laser-line"></div>
-                        <i class="fas fa-camera sensor-icon"></i>
+            <!-- GLIMPSE TAB -->
+            <div id="tab-glimpse" class="tab-content hidden">
+                <div class="glimpse-list">
+                    <!-- గ్లింప్స్ ఐటెమ్ -->
+                    <div class="glimpse-item">
+                        <div class="glimpse-border unread">
+                            <img src="friend2.jpg" alt="Friend">
+                        </div>
+                        <p>Friend_Name</p>
+                        <span class="glimpse-time">2 hrs ago</span>
                     </div>
-                    <button id="btn-simulate-scan" class="btn-settings-action">Simulate External Network Scan</button>
                 </div>
-            </div>
-            <div class="qr-carousel-indicators">
-                <span class="indicator-dot active" id="dot-gen"></span>
-                <span class="indicator-dot" id="dot-scan"></span>
-            </div>
-        </div>
-    </div>
-
-    <div id="chat-window-overlay" class="chat-window-overlay-view hidden">
-        <header class="chat-header-view">
-            <button id="btn-exit-chat-view" class="btn-chat-action"><i class="fas fa-chevron-left"></i></button>
-            <div class="chat-user-profile-meta" id="trigger-view-opponent-profile">
-                <img id="chat-window-avatar" src="https://via.placeholder.com/40" class="chat-view-avatar" alt="User Avatar">
-                <div>
-                    <h4 id="chat-window-username">Secure Target Node</h4>
-                    <span id="chat-window-status-sub">P2P Matrix Link Status</span>
-                </div>
-            </div>
-            <div class="chat-view-operations">
-                <button id="btn-chat-voice-call" class="btn-chat-action"><i class="fas fa-phone"></i></button>
-                <button id="btn-chat-video-call" class="btn-chat-action"><i class="fas fa-video"></i></button>
-                <button id="btn-chat-toggle-privacy-tier" class="btn-chat-action special-toggle-btn" data-tier="public">
-                    <span id="txt-privacy-tier-toggle">Move to Dark</span>
+                <!-- ఫ్లోటింగ్ కెమెరా ఐకాన్ -->
+                <button class="floating-cam-btn">
+                    <i class="fa-solid fa-camera"></i>
                 </button>
             </div>
-        </header>
-        
-        <div id="chat-messages-scroll-zone" class="chat-message-display-scroll">
+
+            <!-- CALLS TAB -->
+            <div id="tab-calls" class="tab-content hidden">
+                <div class="call-history-list">
+                    <div class="call-item">
+                        <div class="call-info">
+                            <h4>Friend_Name</h4>
+                            <p class="incoming"><i class="fa-solid fa-arrow-down-left"></i> Today, 9:30 AM (15:20)</p>
+                        </div>
+                        <i class="fa-solid fa-phone quick-call-icon"></i>
+                    </div>
+                </div>
             </div>
 
-        <div id="chat-privacy-configuration-drawer" class="drawer-config-panel">
-            <div class="drawer-row">
-                <label><i class="fas fa-hourglass-end"></i> Wipe Sequence Duration:</label>
-                <select id="select-disappearing-timer" class="drawer-select">
-                    <option value="disabled">Disabled</option>
-                    <option value="24">24 Hours</option>
-                    <option value="48">48 Hours</option>
-                    <option value="72">72 Hours</option>
-                </select>
+            <!-- GAMES TAB -->
+            <div id="tab-games" class="tab-content hidden">
+                <div class="games-container">
+                    <div class="game-card">
+                        <h3>Tic Tac Toe</h3>
+                        <button class="play-bot-btn">Play vs Bot</button>
+                        <button class="play-friend-btn">Play vs Friend</button>
+                    </div>
+                    <!-- మరిన్ని గేమ్స్ ఇక్కడ వస్తాయి -->
+                </div>
             </div>
-            <div class="drawer-row">
-                <label><i class="fas fa-clock"></i> Schedule Delivery Timestamp:</label>
-                <input type="datetime-local" id="input-schedule-timestamp" class="drawer-input">
-            </div>
-        </div>
 
-        <footer class="chat-input-operations-footer">
-            <button id="btn-toggle-drawer" class="btn-input-utility"><i class="fas fa-sliders-h"></i></button>
-            <label class="btn-input-utility" for="input-media-upload">
-                <i class="fas fa-paperclip"></i>
-                <input type="file" id="input-media-upload" accept="image/*" class="hidden">
-            </label>
-            <div id="media-preview-container" class="media-attachment-preview-node hidden">
-                <span id="media-preview-name">image.jpg</span>
-                <select id="select-media-save-tier" class="media-tier-select">
-                    <option value="allow">Save Allowed</option>
-                    <option value="block">Save Prohibited</option>
-                </select>
-                <button id="btn-clear-media" class="btn-clear-file">✖</button>
+        </main>
+
+        <!-- ఫూటర్ నావిగేషన్ -->
+        <footer class="app-footer smooth-edges">
+            <div class="nav-btn active" data-target="tab-chats">
+                <i class="fa-solid fa-message"></i>
+                <span>Chats</span>
             </div>
-            <input type="text" id="input-chat-message-payload" placeholder="Transmit end-to-end encrypted packet..." autocomplete="off">
-            <button id="btn-chat-voice-record" class="btn-input-utility"><i class="fas fa-microphone"></i></button>
-            <button id="btn-transmit-packet" class="btn-send-packet-round"><i class="fas fa-paper-plane"></i></button>
+            <div class="nav-btn" data-target="tab-glimpse">
+                <i class="fa-solid fa-camera-retro"></i>
+                <span>Glimpse</span>
+            </div>
+            <div class="nav-btn" data-target="tab-calls">
+                <i class="fa-solid fa-phone"></i>
+                <span>Calls</span>
+            </div>
+            <div class="nav-btn" data-target="tab-games">
+                <i class="fa-solid fa-gamepad"></i>
+                <span>Games</span>
+            </div>
         </footer>
-    </div>
+    </section>
 
-    <div id="webrtc-call-interface-layer" class="call-overlay-view-module hidden">
-        <video id="webrtc-remote-video-element" autoplay playsinline class="remote-fullscreen-video-element"></video>
-        <video id="webrtc-local-video-element" autoplay playsinline muted class="local-pip-video-element"></video>
+    <!-- 5. ఓవర్‌లేలు / పాపప్స్ (డిఫాల్ట్‌గా దాచబడ్డాయి) -->
 
-        <div class="call-hud-top-center">
-            <div class="pip-toggle-utility" id="btn-trigger-pip-mode"><i class="fas fa-compress-alt"></i></div>
-            <div id="call-profile-avatar-display" class="call-avatar-large-circle">C</div>
-            <h2 id="call-identity-headline">Remote Contact Node</h2>
-            <p id="call-link-state-label">Establishing Decryption Matrices...</p>
-        </div>
-
-        <div class="call-hud-bottom-controls">
-            <button id="btn-hardware-toggle-mic" class="hardware-control-circle"><i class="fas fa-microphone"></i></button>
-            <button id="btn-hardware-toggle-cam" class="hardware-control-circle"><i class="fas fa-video"></i></button>
-            <button id="btn-hardware-flip-camera" class="hardware-control-circle"><i class="fas fa-sync-alt"></i></button>
-            <button id="btn-hardware-hold-link" class="hardware-control-circle"><i class="fas fa-pause"></i></button>
-            <button id="btn-hardware-terminate-session" class="hardware-control-circle button-terminate-red"><i class="fas fa-phone-slash"></i></button>
+    <!-- సెర్చ్ ఓవర్‌లే -->
+    <div id="search-overlay" class="overlay hidden">
+        <input type="text" id="live-search-input" placeholder="Search 1 or 2 letters...">
+        <div id="search-results">
+            <!-- సెర్చ్ రిజల్ట్స్ (Add+ బటన్ తో) ఇక్కడ వస్తాయి -->
         </div>
     </div>
 
-    <div id="modal-game-request-alert" class="modal-alert-overlay-shield hidden">
-        <div class="modal-alert-message-box glass-effect">
-            <div class="alert-icon-wrapper-bounce"><i class="fas fa-dice-d20"></i></div>
-            <h4 id="lbl-game-alert-headline">Match Synchronization Request</h4>
-            <p id="lbl-game-alert-details">A contact wishes to challenge your terminal in Game Module.</p>
-            <div class="alert-action-buttons-wrapper">
-                <button id="btn-reject-match-request" class="btn-alert-operation decline">Decline Link</button>
-                <button id="btn-accept-match-request" class="btn-alert-operation accept">Initialize Arena</button>
+    <!-- ప్రైవేట్ చాట్ అన్‌లాక్ (పిన్/ప్యాట్రన్) -->
+    <div id="private-auth-modal" class="overlay hidden love-ui">
+        <div class="pin-box">
+            <h3>Enter Secret Pattern</h3>
+            <div class="pattern-grid">
+                <!-- ప్యాట్రన్ డాట్స్ -->
             </div>
         </div>
     </div>
 
-    <div id="security-lock-gate" class="modal-alert-overlay-shield hidden">
-        <div class="modal-alert-message-box pure-dark-theme-override">
-            <h3>Authorization Node Required 🔒</h3>
-            <p>Accessing Highly Secured Dark Love UI Corridor</p>
-            <div class="pin-entry-fields-row">
-                <input type="password" class="pin-digit-box" maxlength="1" autocomplete="off">
-                <input type="password" class="pin-digit-box" maxlength="1" autocomplete="off">
-                <input type="password" class="pin-digit-box" maxlength="1" autocomplete="off">
-                <input type="password" class="pin-digit-box" maxlength="1" autocomplete="off">
+    <!-- చాట్ ఇంటర్‌ఫేస్ (చాట్ ఓపెన్ చేసినప్పుడు) -->
+    <div id="active-chat-screen" class="screen hidden">
+        <header class="chat-header">
+            <i class="fa-solid fa-arrow-left" id="back-to-chats"></i>
+            <img src="friend1.jpg" class="chat-dp-small">
+            <h3 class="chat-username">Friend_Name</h3>
+            <div class="chat-actions">
+                <i class="fa-solid fa-phone"></i>
+                <i class="fa-solid fa-video"></i>
+                <i class="fa-solid fa-ellipsis-vertical"></i> <!-- దీంట్లో Move to Dark/Public ఉంటాయి -->
             </div>
-            <div class="alternative-emoji-pattern-matrix" id="emoji-pattern-unlock-grid">
-                <span class="emoji-node-btn" data-index="1">❤️</span>
-                <span class="emoji-node-btn" data-index="2">🔒</span>
-                <span class="emoji-node-btn" data-index="3">🔥</span>
-                <span class="emoji-node-btn" data-index="4">🐱</span>
-            </div>
-            <button id="btn-cancel-interlock-clear" class="btn-alert-operation decline" style="margin-top: 15px; width: 100%;">Decline Authentication</button>
+        </header>
+        <div class="chat-messages-area">
+            <!-- మెసేజ్‌లు (టైమ్ స్టాంప్, డెలివరీ డాట్స్ తో) ఇక్కడ వస్తాయి -->
+        </div>
+        <div class="chat-input-area">
+            <i class="fa-solid fa-paperclip"></i>
+            <input type="text" placeholder="Type a message...">
+            <i class="fa-solid fa-microphone"></i>
         </div>
     </div>
 
-    <div id="glimpse-viewer-lightbox" class="modal-alert-overlay-shield hidden">
-        <div class="glimpse-lightbox-content">
-            <div class="glimpse-progress-bar-timer-track"><div id="glimpse-progress-active-line" class="active-fill-line"></div></div>
-            <header class="glimpse-lightbox-top-header">
-                <span id="glimpse-lightbox-username">Sender Node</span>
-                <span id="glimpse-lightbox-timestamp">0s ago</span>
-            </header>
-            <div class="glimpse-render-canvas-frame">
-                <img id="glimpse-lightbox-image" src="" alt="Glimpse Canvas Payload" class="hidden">
-                <video id="glimpse-lightbox-video" src="" autoplay muted class="hidden"></video>
-                <div id="glimpse-overlay-location" class="location-tag-display font-style-custom"></div>
-                <div id="glimpse-overlay-time" class="timestamp-tag-display"></div>
-            </div>
-            <footer class="glimpse-lightbox-footer-actions">
-                <button id="btn-lightbox-close" class="btn-lightbox-action-round">Dismiss</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="screenshot-inhibitor-mask-layer" class="protective-screen-inhibitor-layer hidden">
-        <div class="inhibitor-message-container">
-            <i class="fas fa-user-secret"></i>
-            <h3>Security Violation Parameter Met</h3>
-            <p>Screen visualization cloning operations are blocked in Dark Vault operations.</p>
-        </div>
-    </div>
-
-    <div id="panel-system-camera-capture-app" class="fullscreen-overlay-panel hidden">
-        <video id="system-camera-stream-preview" autoplay playsinline class="camera-hardware-stream-viewport"></video>
-        <div class="camera-app-hud-overlay-controls">
-            <button id="btn-close-camera-app" class="btn-camera-hud-exit"><i class="fas fa-times"></i></button>
-            <div class="camera-center-actions-group">
-                <button id="btn-hardware-shutter-photo" class="btn-shutter-action photo"><i class="fas fa-circle"></i></button>
-            </div>
-            <div class="camera-meta-setup-inputs-drawer">
-                <input type="text" id="input-cam-location-tag" placeholder="Inject Location Parameter Label..." class="cam-drawer-field">
-                <select id="select-cam-save-restriction" class="cam-drawer-field">
-                    <option value="restrict">Prohibit Saving Operations</option>
-                    <option value="allow">Allow Storage Copies</option>
-                </select>
-            </div>
-        </div>
-    </div>
-<script src="script.js"></script>
 </body>
 </html>
