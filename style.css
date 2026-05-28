@@ -2,40 +2,37 @@
    1. GLOBAL VARIABLES & RESET
 ========================================= */
 :root {
-    --primary-bg: #0d0d0d;
-    --secondary-bg: #1a1a1a;
-    --text-light: #f0f0f0;
-    --text-muted: #888;
+    --primary-bg: #0a0a0a;
+    --secondary-bg: #161616;
+    --text-light: #ffffff;
+    --text-muted: #888888;
     --accent-glow: #ff4b2b;
-    --love-gradient: linear-gradient(45deg, #ff0844 0%, #ffb199 100%);
-    --dark-gradient: linear-gradient(45deg, #434343 0%, #000000 100%);
+    --love-gradient: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+    --dark-gradient: linear-gradient(45deg, #232526 0%, #414345 100%);
     --premium-gold: #ffd700;
+    --glass-bg: rgba(20, 20, 20, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background-color: var(--primary-bg);
     color: var(--text-light);
-    overflow: hidden; /* యాప్ లాగా ఫీల్ అవ్వడానికి */
+    overflow: hidden; /* Prevent native scrolling, makes it feel like an app */
 }
 
 /* =========================================
-   2. ANTI-STUCK & SCREENSHOT PROTECTION
+   2. DISPLAY CONTROLS (ANTI-CRASH LOGIC)
 ========================================= */
-.hidden {
-    display: none !important;
-}
-
-.active {
-    display: flex !important;
-}
+.hidden { display: none !important; }
+.active { display: flex !important; }
 
 .screen {
     width: 100vw;
@@ -45,267 +42,206 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    background-color: var(--primary-bg);
 }
 
-#screenshot-protection-layer {
+.overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 9999;
-    pointer-events: none; /* ఇది ఉంటే బటన్స్ క్లిక్ అవుతాయి, కానీ ప్రొటెక్షన్ ఆన్ అవుతుంది */
-    /* ప్రైవేట్ చాట్‌లో ఉన్నప్పుడు JS ద్వారా backdrop-filter: blur(5px); యాడ్ చేయొచ్చు */
-}
-
-/* =========================================
-   3. CAT PULLING ANIMATION (LOGIN PAGE)
-========================================= */
-#auth-section {
-    background: var(--dark-gradient);
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.cat-animation-wrapper {
-    height: 120px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 20px;
-}
-
-/* సింపుల్ CSS క్యాట్ యానిమేషన్ */
-.cat-head {
-    width: 60px;
-    height: 60px;
-    background-color: var(--text-light);
-    border-radius: 50%;
-    position: relative;
-    animation: pull 1.5s infinite alternate ease-in-out;
-}
-.cat-head::before, .cat-head::after {
-    content: '';
-    position: absolute;
-    top: -10px;
-    width: 20px;
-    height: 20px;
-    background: var(--text-light);
-    border-radius: 50% 50% 0 0;
-}
-.cat-head::before { left: 5px; transform: rotate(-30deg); }
-.cat-head::after { right: 5px; transform: rotate(30deg); }
-
-@keyframes pull {
-    0% { transform: translateY(10px) rotate(-5deg); }
-    100% { transform: translateY(-15px) rotate(5deg); }
+/* =========================================
+   3. SCREENSHOT PROTECTION
+========================================= */
+#screenshot-protection-layer {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 9999;
+    pointer-events: none; /* Allows clicks to pass through by default */
+    transition: backdrop-filter 0.3s ease, background 0.3s ease;
 }
 
 /* =========================================
-   4. FORMS & INPUTS
+   4. AUTH & LOADING SCREENS
 ========================================= */
+#auth-screen { background: var(--dark-gradient); justify-content: center; align-items: center; }
+
 .auth-form-box {
-    background: rgba(25, 25, 25, 0.9);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(15px);
     padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 25px;
     width: 90%;
-    max-width: 350px;
+    max-width: 360px;
     text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
 }
 
-input {
+.auth-form-box input {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     margin: 10px 0;
-    border-radius: 10px;
-    border: none;
-    background: var(--secondary-bg);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(0,0,0,0.5);
     color: var(--text-light);
     outline: none;
     transition: 0.3s;
 }
-input:focus {
-    box-shadow: 0 0 10px var(--accent-glow);
+
+.auth-form-box input:focus {
+    border-color: var(--accent-glow);
+    box-shadow: 0 0 10px rgba(255, 75, 43, 0.3);
 }
 
 .btn-primary {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--love-gradient);
     color: white;
     font-weight: bold;
+    font-size: 16px;
     cursor: pointer;
-    margin-top: 10px;
-}
-.toggle-text {
     margin-top: 15px;
-    font-size: 12px;
-    color: var(--accent-glow);
-    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255, 8, 68, 0.4);
+    transition: transform 0.2s;
 }
 
-/* =========================================
-   5. HEADER & PROFILE (Smooth Edges)
-========================================= */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: rgba(30, 30, 30, 0.8);
-    border-bottom-left-radius: 25px;
-    border-bottom-right-radius: 25px;
-    backdrop-filter: blur(10px); /* గ్లాస్ ఎఫెక్ట్ */
-    z-index: 10;
-}
+.btn-primary:active { transform: scale(0.95); }
 
-.header-left, .header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+.toggle-text { margin-top: 20px; font-size: 13px; color: #ffb199; cursor: pointer; }
 
-.user-dp {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--accent-glow);
-}
-
-.profile-pic-container {
-    position: relative;
-}
-
-.glowing-star {
-    position: absolute;
-    bottom: -5px;
-    right: -5px;
-    color: var(--premium-gold);
-    font-size: 14px;
-    text-shadow: 0 0 10px var(--premium-gold);
-}
-
-.gradient-username {
-    background: var(--love-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 800;
-    cursor: pointer; /* 1.5s హోల్డ్ కోసం */
-}
-
-/* =========================================
-   6. MAIN CONTENT AREA & CHAT LIST
-========================================= */
-#app-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    padding-bottom: 80px; /* ఫూటర్ కవర్ చేయకుండా */
-}
-
-.chat-list-item {
-    display: flex;
-    align-items: center;
-    background: var(--secondary-bg);
-    padding: 12px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    transition: 0.3s;
-}
-
-.chat-list-item:active {
-    transform: scale(0.98);
-}
-
-.chat-dp {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-}
-
-.chat-info h4 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* డెలివరీ స్టేటస్ డాట్స్ */
-.delivery-status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-.red-dot { background: #ff4444; }    /* Not received */
-.yellow-dot { background: #ffbb33; } /* Received, not seen */
-.green-dot { background: #00C851; }  /* Seen */
-
-/* =========================================
-   7. FOOTER (Smooth Edges)
-========================================= */
-.app-footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    padding: 15px 10px;
-    background: rgba(30, 30, 30, 0.9);
-    border-top-left-radius: 25px;
-    border-top-right-radius: 25px;
-    backdrop-filter: blur(10px);
-}
-
-.nav-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-muted);
-    font-size: 12px;
-    gap: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.nav-btn.active {
-    color: var(--accent-glow);
-    transform: translateY(-5px);
-}
-
-.nav-btn i {
-    font-size: 20px;
-}
-
-/* =========================================
-   8. PRIVATE CHAT & LOVE UI (Overlays)
-========================================= */
-.love-ui {
-    background: linear-gradient(135deg, #300018 0%, #1a000b 100%) !important;
-}
-
-.overlay {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* NC Loader Spinner */
+/* Loader Spinner */
 .nc-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid rgba(255, 75, 43, 0.3);
+    width: 60px; height: 60px;
+    border: 4px solid rgba(255, 75, 43, 0.1);
     border-top-color: var(--accent-glow);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px auto;
 }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* =========================================
+   5. HEADER & FOOTER (Smooth Edges)
+========================================= */
+.app-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px;
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
+    border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+    backdrop-filter: blur(15px);
+    z-index: 10;
+}
+
+.header-left, .header-right { display: flex; align-items: center; gap: 15px; }
+
+.user-dp { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-glow); }
+.gradient-username {
+    background: var(--love-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-weight: bold; cursor: pointer; user-select: none;
+}
+
+.app-footer {
+    position: fixed; bottom: 0; width: 100%;
+    display: flex; justify-content: space-around;
+    padding: 12px 10px 20px 10px; /* Extra padding for modern phones */
+    background: var(--glass-bg);
+    border-top: 1px solid var(--glass-border);
+    border-top-left-radius: 25px; border-top-right-radius: 25px;
+    backdrop-filter: blur(15px);
+}
+
+.nav-btn {
+    display: flex; flex-direction: column; align-items: center;
+    color: var(--text-muted); font-size: 12px; gap: 5px; cursor: pointer;
+    transition: 0.3s;
+}
+.nav-btn i { font-size: 22px; }
+.nav-btn.active { color: var(--accent-glow); transform: translateY(-5px); }
+
+/* =========================================
+   6. WEBRTC VIDEO CALL UI (Professional)
+========================================= */
+.call-ui-container {
+    position: relative;
+    width: 100%; height: 100%;
+    background: #000;
+}
+
+#remote-video {
+    width: 100%; height: 100%;
+    object-fit: cover; /* Fills the screen beautifully */
+}
+
+/* PIP Mode for Local Video */
+.local-video-wrapper {
+    position: absolute;
+    bottom: 120px; right: 20px;
+    width: 110px; height: 150px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    background: #222;
+    z-index: 2;
+}
+
+#local-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); /* Mirror effect */ }
+
+.call-info-top {
+    position: absolute; top: 40px; width: 100%;
+    text-align: center; z-index: 2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+.call-info-top .caller-dp { width: 70px; height: 70px; border-radius: 50%; margin-bottom: 10px; }
+
+.call-controls {
+    position: absolute; bottom: 40px; width: 100%;
+    display: flex; justify-content: center; gap: 25px; z-index: 2;
+}
+
+.control-btn {
+    width: 55px; height: 55px;
+    border-radius: 50%; background: rgba(255,255,255,0.2);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 20px; color: white; backdrop-filter: blur(5px);
+    cursor: pointer; transition: 0.3s;
+}
+.control-btn.end-call { background: #ff4444; box-shadow: 0 0 15px rgba(255, 68, 68, 0.5); }
+.control-btn:active { transform: scale(0.9); }
+
+/* =========================================
+   7. PRIVATE CHAT & LOVE UI
+========================================= */
+.love-ui {
+    background: linear-gradient(135deg, #3a0016 0%, #110005 100%) !important;
+}
+
+.pin-box {
+    background: rgba(0,0,0,0.6); padding: 30px;
+    border-radius: 20px; text-align: center;
+    border: 1px solid rgba(255, 8, 68, 0.3);
+}
+
+/* =========================================
+   8. MAIN CONTENT LAYOUT
+========================================= */
+#app-content {
+    flex: 1; overflow-y: auto;
+    padding: 15px; padding-bottom: 90px;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
