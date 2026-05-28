@@ -1,174 +1,311 @@
-/* ========================================================
-   TRUE CHATS - ULTIMATE ADVANCED STYLESHEET
-   ======================================================== */
-
-/* 1. BASE VARIABLES & RESET */
+/* =========================================
+   1. GLOBAL VARIABLES & RESET
+========================================= */
 :root {
-    --primary-color: #6e8efb;
-    --secondary-color: #a777e3;
-    --dark-vault-bg: #0f0f13;
-    --dark-vault-accent: #ff2a5f; /* Love UI Accent */
-    --text-main: #2d3436;
-    --text-muted: #636e72;
-    --bg-light: #f4f7f6;
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --shadow-soft: 0 8px 32px rgba(31, 38, 135, 0.1);
+    --primary-bg: #0d0d0d;
+    --secondary-bg: #1a1a1a;
+    --text-light: #f0f0f0;
+    --text-muted: #888;
+    --accent-glow: #ff4b2b;
+    --love-gradient: linear-gradient(45deg, #ff0844 0%, #ffb199 100%);
+    --dark-gradient: linear-gradient(45deg, #434343 0%, #000000 100%);
+    --premium-gold: #ffd700;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-body { background: var(--bg-light); height: 100vh; overflow: hidden; color: var(--text-main); }
-.hidden { display: none ; }
-.smooth-edges { border-radius: 24px; }
-
-/* 2. GLASSMORPHISM & UTILITIES */
-.glass-effect {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-soft);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.gradient-username-text {
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-light);
+    overflow: hidden; /* యాప్ లాగా ఫీల్ అవ్వడానికి */
+}
+
+/* =========================================
+   2. ANTI-STUCK & SCREENSHOT PROTECTION
+========================================= */
+.hidden {
+    display: none !important;
+}
+
+.active {
+    display: flex !important;
+}
+
+.screen {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#screenshot-protection-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none; /* ఇది ఉంటే బటన్స్ క్లిక్ అవుతాయి, కానీ ప్రొటెక్షన్ ఆన్ అవుతుంది */
+    /* ప్రైవేట్ చాట్‌లో ఉన్నప్పుడు JS ద్వారా backdrop-filter: blur(5px); యాడ్ చేయొచ్చు */
+}
+
+/* =========================================
+   3. CAT PULLING ANIMATION (LOGIN PAGE)
+========================================= */
+#auth-section {
+    background: var(--dark-gradient);
+    justify-content: center;
+    align-items: center;
+}
+
+.cat-animation-wrapper {
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 20px;
+}
+
+/* సింపుల్ CSS క్యాట్ యానిమేషన్ */
+.cat-head {
+    width: 60px;
+    height: 60px;
+    background-color: var(--text-light);
+    border-radius: 50%;
+    position: relative;
+    animation: pull 1.5s infinite alternate ease-in-out;
+}
+.cat-head::before, .cat-head::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    width: 20px;
+    height: 20px;
+    background: var(--text-light);
+    border-radius: 50% 50% 0 0;
+}
+.cat-head::before { left: 5px; transform: rotate(-30deg); }
+.cat-head::after { right: 5px; transform: rotate(30deg); }
+
+@keyframes pull {
+    0% { transform: translateY(10px) rotate(-5deg); }
+    100% { transform: translateY(-15px) rotate(5deg); }
+}
+
+/* =========================================
+   4. FORMS & INPUTS
+========================================= */
+.auth-form-box {
+    background: rgba(25, 25, 25, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    width: 90%;
+    max-width: 350px;
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    background: var(--secondary-bg);
+    color: var(--text-light);
+    outline: none;
+    transition: 0.3s;
+}
+input:focus {
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--love-gradient);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.toggle-text {
+    margin-top: 15px;
+    font-size: 12px;
+    color: var(--accent-glow);
+    cursor: pointer;
+}
+
+/* =========================================
+   5. HEADER & PROFILE (Smooth Edges)
+========================================= */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(30, 30, 30, 0.8);
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    backdrop-filter: blur(10px); /* గ్లాస్ ఎఫెక్ట్ */
+    z-index: 10;
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-dp {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-glow);
+}
+
+.profile-pic-container {
+    position: relative;
+}
+
+.glowing-star {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    color: var(--premium-gold);
+    font-size: 14px;
+    text-shadow: 0 0 10px var(--premium-gold);
+}
+
+.gradient-username {
+    background: var(--love-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-family: 'Dancing Script', cursive;
-    font-size: 22px;
+    font-weight: 800;
+    cursor: pointer; /* 1.5s హోల్డ్ కోసం */
 }
 
-/* 3. LOADING SCREEN ANIMATION */
-.loading-overlay { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-.nc-pulse-logo { position: relative; width: 150px; height: 150px; display: flex; justify-content: center; align-items: center; }
-.nc-font { font-family: 'Cinzel Decorative', serif; font-size: 60px; background: linear-gradient(45deg, #6e8efb, #a777e3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; z-index: 10; }
-.pulse-ring { position: absolute; width: 100%; height: 100%; border: 2px solid var(--primary-color); border-radius: 50%; animation: pulse 2s infinite ease-out; }
-.pulse-ring.delay { animation-delay: 1s; border-color: var(--secondary-color); }
-@keyframes pulse { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.8); opacity: 0; } }
-
-/* 4. AUTH & CAT PEEKABOO ANIMATION */
-.auth-wrapper { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); position: relative; }
-.login-box { width: 90%; max-width: 380px; padding: 40px 25px; border-radius: 30px; position: relative; z-index: 2; margin-top: 50px; }
-
-/* The Cat */
-.cat-container { position: absolute; top: -65px; left: 50%; transform: translateX(-50%); width: 120px; height: 70px; z-index: -1; transition: all 0.3s ease; }
-.cat-head { width: 100px; height: 60px; background: #2d3436; border-radius: 50px 50px 0 0; position: absolute; bottom: 0; left: 10px; }
-.cat-ear { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-bottom: 25px solid #2d3436; position: absolute; top: -15px; }
-.ear-left { left: 5px; transform: rotate(-15deg); }
-.ear-right { right: 5px; transform: rotate(15deg); }
-.cat-eye { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 20px; display: flex; justify-content: center; align-items: center; }
-.eye-left { left: 20px; } .eye-right { right: 20px; }
-.pupil { width: 8px; height: 8px; background: #000; border-radius: 50%; transition: all 0.2s; }
-.cat-paw { width: 30px; height: 20px; background: #2d3436; border-radius: 15px; position: absolute; bottom: -10px; transition: all 0.3s; }
-.paw-left { left: 15px; } .paw-right { right: 15px; }
-
-/* Interactive Cat States (Triggered via JS later) */
-.cat-peek .cat-container { top: -85px; }
-.cat-cover-eyes .paw-left { transform: translate(10px, -30px) rotate(30deg); }
-.cat-cover-eyes .paw-right { transform: translate(-10px, -30px) rotate(-30deg); }
-
-/* Auth Forms */
-.auth-tabs { display: flex; justify-content: space-around; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-.auth-tab { background: none; border: none; font-size: 16px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
-.auth-tab.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
-.input-group { position: relative; margin-bottom: 20px; }
-.input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-.input-group input { width: 100%; padding: 15px 15px 15px 45px; border-radius: 15px; border: 1px solid #ddd; outline: none; transition: 0.3s; background: rgba(255,255,255,0.7); }
-.input-group input:focus { border-color: var(--primary-color); background: #fff; }
-.btn-primary-auth { width: 100%; padding: 15px; border-radius: 15px; background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)); color: white; font-weight: bold; font-size: 16px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(110, 142, 251, 0.3); transition: transform 0.2s; }
-.btn-primary-auth:active { transform: scale(0.98); }
-
-/* 5. APP LAYOUT (HEADER & FOOTER) */
-.app-layout { display: flex; flex-direction: column; height: 100vh; position: relative; }
-.highlight-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: var(--glass-bg); backdrop-filter: blur(10px); margin: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); z-index: 100; }
-.highlight-footer { display: flex; justify-content: space-around; padding: 15px 10px; background: var(--glass-bg); backdrop-filter: blur(10px); margin: 0 10px 10px 10px; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); z-index: 100; }
-
-.header-center { display: flex; align-items: center; cursor: pointer; padding: 5px 15px; border-radius: 20px; transition: background 0.3s; }
-.header-center:active { background: #eee; }
-.avatar-wrapper { position: relative; margin-right: 10px; }
-.avatar-circle-main { width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(45deg, #ff9a9e, #fecfef); display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; font-size: 20px; }
-.golden-star-badge { position: absolute; bottom: -2px; right: -2px; color: gold; font-size: 12px; background: #222; border-radius: 50%; padding: 3px; border: 2px solid #fff; box-shadow: 0 0 8px gold; }
-
-.btn-header-icon { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; width: 40px; height: 40px; border-radius: 50%; transition: background 0.3s; }
-.btn-header-icon:active { background: #e0e0e0; }
-.notification-badge-container { position: relative; }
-.badge-dot { position: absolute; top: 0; right: 5px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; border: 2px solid white; }
-
-/* Footer Items */
-.footer-nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
-.footer-nav-item i { font-size: 20px; margin-bottom: 4px; }
-.footer-nav-item span { font-size: 12px; font-weight: 500; }
-.footer-nav-item.active { color: var(--primary-color); transform: translateY(-3px); }
-
-/* 6. MAIN CONTENT AREA & BACKGROUND ANIMATIONS */
-.content-container { flex: 1; overflow-y: auto; padding: 10px; position: relative; }
-.tab-screen { height: 100%; display: flex; flex-direction: column; }
-.tab-header-title { font-size: 14px; font-weight: 600; color: var(--text-muted); padding: 10px 15px; text-transform: uppercase; letter-spacing: 1px; }
-
-/* Animated Public Chat Background */
-.animated-background-elements { background-image: radial-gradient(#e0e0e0 1px, transparent 1px); background-size: 20px 20px; animation: bgMove 20s linear infinite; }
-@keyframes bgMove { 0% { background-position: 0 0; } 100% { background-position: 40px 40px; } }
-
-/* 7. PRIVATE VAULT (DARK LOVE UI) - The special feature you asked for */
-.pure-dark-theme-override { background: var(--dark-vault-bg) !important; color: #fff !important; border-color: #333 !important; }
-.pure-dark-theme-override .gradient-username-text { background: linear-gradient(45deg, #ff2a5f, #ff7b9c); -webkit-background-clip: text; }
-.chat-window-overlay-view { position: fixed; inset: 0; background: #fff; z-index: 2000; display: flex; flex-direction: column; transition: 0.3s; }
-.chat-window-overlay-view.dark-vault-active { background: var(--dark-vault-bg); color: #fff; }
-
-.chat-header-view { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: var(--glass-bg); backdrop-filter: blur(10px); }
-.chat-window-overlay-view.dark-vault-active .chat-header-view { background: rgba(15, 15, 19, 0.9); border-bottom: 1px solid #333; }
-
-/* 8. SECURITY INTERLOCK (PIN / EMOJI) */
-.modal-alert-overlay-shield { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 3000; display: flex; justify-content: center; align-items: center; }
-.modal-alert-message-box { background: white; width: 85%; max-width: 350px; padding: 30px; border-radius: 24px; text-align: center; }
-.pin-entry-fields-row { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-.pin-digit-box { width: 50px; height: 60px; font-size: 24px; text-align: center; border-radius: 12px; border: 2px solid #444; background: #222; color: #fff; outline: none; }
-.pin-digit-box:focus { border-color: var(--dark-vault-accent); }
-.alternative-emoji-pattern-matrix { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-.emoji-node-btn { font-size: 30px; cursor: pointer; padding: 10px; background: #222; border-radius: 12px; transition: 0.2s; }
-.emoji-node-btn:active { transform: scale(0.9); background: #333; }
-
-/* 9. WEBRTC CALLING UI */
-.call-overlay-view-module { position: fixed; inset: 0; background: #000; z-index: 2500; display: flex; flex-direction: column; }
-.remote-fullscreen-video-element { width: 100%; height: 100%; object-fit: cover; }
-.local-pip-video-element { position: absolute; bottom: 120px; right: 20px; width: 110px; height: 160px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); object-fit: cover; background: #222; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-.call-hud-top-center { position: absolute; top: 50px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; color: white; text-shadow: 0 2px 5px rgba(0,0,0,0.8); z-index: 5; }
-.call-avatar-large-circle { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; font-size: 40px; margin-bottom: 15px; border: 2px solid rgba(255,255,255,0.5); }
-.call-hud-bottom-controls { position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; gap: 15px; z-index: 5; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding-top: 40px; padding-bottom: 20px; }
-.hardware-control-circle { width: 55px; height: 55px; border-radius: 50%; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: none; color: white; font-size: 20px; cursor: pointer; transition: 0.3s; }
-.hardware-control-circle:active { background: rgba(255,255,255,0.5); }
-.button-terminate-red { background: #ff4757; color: white; }
-
-/* 10. GAMES GRID */
-.games-directory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; padding: 10px; }
-.game-module-card { background: white; border-radius: 20px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-.game-art { font-size: 40px; color: var(--primary-color); margin-bottom: 10px; }
-.game-action-row { display: flex; gap: 5px; margin-top: 15px; }
-.btn-game-play { flex: 1; padding: 8px; border: none; border-radius: 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
-.btn-game-play.solo { background: #f0f2f5; color: #333; }
-.btn-game-play.multi { background: var(--primary-color); color: white; }
-
-/* 11. GLIMPSE (CAMERA BUTTON) */
-.btn-floating-action { position: absolute; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(45deg, #ff9a9e, #fecfef); color: white; font-size: 24px; border: none; box-shadow: 0 8px 20px rgba(255, 154, 158, 0.4); cursor: pointer; z-index: 90; display: flex; justify-content: center; align-items: center; }
-
-/* 12. FULLSCREEN PANELS (Search, Settings, QR) */
-.fullscreen-overlay-panel { position: fixed; inset: 0; background: var(--bg-light); z-index: 1500; display: flex; flex-direction: column; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100%); }
-.fullscreen-overlay-panel:not(.hidden) { transform: translateY(0); display: flex !important; }
-.panel-header { display: flex; align-items: center; padding: 15px 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05); gap: 15px; }
-.btn-panel-back { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; }
-.panel-header input { flex: 1; border: none; background: #f0f2f5; padding: 10px 15px; border-radius: 20px; outline: none; }
-
-/* Anti-Screenshot Overlay */
-.protective-screen-inhibitor-layer { 
-    position: fixed; 
-    inset: 0; 
-    background: #000; 
-    z-index: 9999; 
-    display: none !important; /* మొదట దీన్ని దాచి ఉంచు */
-    justify-content: center; 
-    align-items: center; 
-    color: white; 
-    text-align: center; 
+/* =========================================
+   6. MAIN CONTENT AREA & CHAT LIST
+========================================= */
+#app-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    padding-bottom: 80px; /* ఫూటర్ కవర్ చేయకుండా */
 }
 
-.inhibitor-message-container i { font-size: 50px; color: #ff4757; margin-bottom: 20px; }
+.chat-list-item {
+    display: flex;
+    align-items: center;
+    background: var(--secondary-bg);
+    padding: 12px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+.chat-list-item:active {
+    transform: scale(0.98);
+}
+
+.chat-dp {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.chat-info h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* డెలివరీ స్టేటస్ డాట్స్ */
+.delivery-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.red-dot { background: #ff4444; }    /* Not received */
+.yellow-dot { background: #ffbb33; } /* Received, not seen */
+.green-dot { background: #00C851; }  /* Seen */
+
+/* =========================================
+   7. FOOTER (Smooth Edges)
+========================================= */
+.app-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 10px;
+    background: rgba(30, 30, 30, 0.9);
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    gap: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-btn.active {
+    color: var(--accent-glow);
+    transform: translateY(-5px);
+}
+
+.nav-btn i {
+    font-size: 20px;
+}
+
+/* =========================================
+   8. PRIVATE CHAT & LOVE UI (Overlays)
+========================================= */
+.love-ui {
+    background: linear-gradient(135deg, #300018 0%, #1a000b 100%) !important;
+}
+
+.overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* NC Loader Spinner */
+.nc-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 75, 43, 0.3);
+    border-top-color: var(--accent-glow);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px auto;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
