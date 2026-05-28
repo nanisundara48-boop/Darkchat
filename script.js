@@ -1,165 +1,133 @@
 /* =========================================
-   1. AUTHENTICATION & LOADING LOGIC
+   1. SUPABASE INITIALIZATION
+========================================= */
+const _supabaseUrl = 'https://ctrdxfjqbseddtoirweb.supabase.co';
+const _supabaseAnonKey = 'sb_publishable_NQ_eOYMqlMIWaDcEkQsIlA_zDXXbuMx';
+const supabase = supabase.createClient(_supabaseUrl, _supabaseAnonKey);
+
+// UI Elements
+const authScreen = document.getElementById('auth-screen');
+const loadingScreen = document.getElementById('nc-loading-screen');
+const mainApp = document.getElementById('main-app-interface');
+
+/* =========================================
+   2. AUTHENTICATION (SIGNUP & LOGIN)
 ========================================= */
 
-// New User / Existing User ఫారమ్ టోగుల్
-function toggleAuth() {
-    const newUserForm = document.getElementById('new-user-form');
-    const existingUserForm = document.getElementById('existing-user-form');
-    const toggleText = document.querySelector('.toggle-text');
+// Toggle between Login and Register
+document.getElementById('toggle-auth-btn').addEventListener('click', () => {
+    const isLogin = document.getElementById('new-user-form').classList.toggle('hidden');
+    document.getElementById('existing-user-form').classList.toggle('hidden');
+    document.getElementById('toggle-auth-btn').innerText = isLogin ? "First time? Create #ID" : "Already have an account? Login";
+});
 
-    if (newUserForm.style.display !== 'none') {
-        newUserForm.style.display = 'none';
-        existingUserForm.style.display = 'block';
-        toggleText.innerText = "First time? Create #ID";
-    } else {
-        newUserForm.style.display = 'block';
-        existingUserForm.style.display = 'none';
-        toggleText.innerText = "Already have an account? Login";
+// Registration Logic
+document.getElementById('btn-register').addEventListener('click', async () => {
+    const username = document.getElementById('reg-username').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-pass').value;
+
+    if (!username || !email || !password) return alert("All fields are required!");
+
+    const uniqueID = username + "#" + Math.floor(1000 + Math.random() * 9000);
+
+    const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { username: username, unique_id: uniqueID } }
+    });
+
+    if (error) alert(error.message);
+    else {
+        alert("Registration Success! Your ID: " + uniqueID);
+        startAppFlow(username);
     }
-}
+});
 
-// ఆథరైజేషన్ తర్వాత లోడింగ్ మరియు యాప్ ఓపెన్ అయ్యే లాజిక్
-function enterSanctuary(username) {
-    const authSection = document.getElementById('auth-section');
-    const loadingScreen = document.getElementById('nc-loading-screen');
-    const mainApp = document.getElementById('main-app-interface');
-    const mainUsernameDisplay = document.getElementById('main-username');
+// Login Logic
+document.getElementById('btn-login').addEventListener('click', async () => {
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-pass').value;
 
-    // 1. లాగిన్ స్క్రీన్ దాచడం
-    authSection.classList.remove('active');
-    authSection.classList.add('hidden');
-    
-    // 2. NC లోడింగ్ స్క్రీన్ చూపించడం
-    loadingScreen.classList.remove('hidden');
-    loadingScreen.classList.add('active');
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    // యూజర్‌నేమ్ సెట్ చేయడం
-    if(username) {
-        mainUsernameDisplay.innerText = username;
-    }
+    if (error) alert(error.message);
+    else startAppFlow(data.user.user_metadata.username);
+});
 
-    // 3. 2 సెకన్ల తర్వాత మెయిన్ యాప్‌లోకి వెళ్లడం (లోడింగ్ స్టక్ అవ్వకుండా)
+function startAppFlow(username) {
+    authScreen.classList.replace('active', 'hidden');
+    loadingScreen.classList.replace('hidden', 'active');
+
+    document.getElementById('main-username').innerText = username;
+
     setTimeout(() => {
-        loadingScreen.classList.remove('active');
-        loadingScreen.classList.add('hidden');
-        
-        mainApp.classList.remove('hidden');
-        mainApp.classList.add('active');
-    }, 2000);
-}
-
-// కొత్త యూజర్ రిజిస్ట్రేషన్ (Generate ID)
-function generateID() {
-    const usernameInput = document.getElementById('reg-username').value;
-    if (usernameInput.trim() === "") {
-        alert("Please enter a username!");
-        return;
-    }
-    // యూజర్‌నేమ్‌కి రాండమ్ గా 4 నంబర్స్ యాడ్ చేసి #ID క్రియేట్ చేయడం
-    const uniqueID = usernameInput + "#" + Math.floor(1000 + Math.random() * 9000);
-    alert("Your Unique #ID is: " + uniqueID + "\nKeep it safe for login!");
-    
-    enterSanctuary(uniqueID);
-}
-
-// ఉన్న యూజర్ లాగిన్
-function loginUser() {
-    const loginIdInput = document.getElementById('login-id').value;
-    if (loginIdInput.trim() === "") {
-        alert("Please enter your Email or #ID!");
-        return;
-    }
-    enterSanctuary(loginIdInput);
+        loadingScreen.classList.replace('active', 'hidden');
+        mainApp.classList.replace('hidden', 'active');
+    }, 2500);
 }
 
 /* =========================================
-   2. FOOTER TAB NAVIGATION LOGIC
+   3. TAB NAVIGATION
 ========================================= */
-const navButtons = document.querySelectorAll('.nav-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-navButtons.forEach(btn => {
+document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        // 1. అన్ని బటన్స్ నుండి 'active' తీసేయడం
-        navButtons.forEach(b => b.classList.remove('active'));
-        // 2. క్లిక్ చేసిన బటన్‌కి 'active' ఇవ్వడం
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
         btn.classList.add('active');
-
-        // 3. టార్గెట్ చేసిన ట్యాబ్ ఐడి తీసుకోవడం
-        const targetTabId = btn.getAttribute('data-target');
-
-        // 4. అన్ని ట్యాబ్ కంటెంట్స్ దాచడం
-        tabContents.forEach(tab => {
-            tab.classList.add('hidden');
-            tab.classList.remove('active');
-        });
-
-        // 5. కావాల్సిన ట్యాబ్ మాత్రమే చూపించడం
-        const activeTab = document.getElementById(targetTabId);
-        activeTab.classList.remove('hidden');
-        activeTab.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
     });
 });
 
 /* =========================================
-   3. 1.5 SECONDS HOLD FEATURE (PRIVACY CHAT)
+   4. PRIVACY HOLD FEATURE (1.5 SECONDS)
 ========================================= */
-const usernameTrigger = document.getElementById('main-username');
-const privateAuthModal = document.getElementById('private-auth-modal');
+const userHeader = document.getElementById('main-username');
+const privateModal = document.getElementById('private-auth-modal');
 const protectionLayer = document.getElementById('screenshot-protection-layer');
 let holdTimer;
 
-function startHoldTimer() {
-    // 1500 మిల్లీసెకన్లు (1.5s) తర్వాత ప్రైవేట్ చాట్ అన్‌లాక్ పాపప్ వస్తుంది
+function triggerPrivateMode() {
     holdTimer = setTimeout(() => {
-        // మొబైల్ వైబ్రేషన్ (సపోర్ట్ ఉంటే 50ms వైబ్రేట్ అవుతుంది)
-        if (navigator.vibrate) navigator.vibrate(50);
-        
-        privateAuthModal.classList.remove('hidden');
-        privateAuthModal.classList.add('active');
-        
-        // స్క్రీన్‌షాట్ ప్రొటెక్షన్ ఎఫెక్ట్ (బ్లర్ ఆన్ చేయడం)
-        protectionLayer.style.backdropFilter = "blur(8px)";
-        protectionLayer.style.backgroundColor = "rgba(0,0,0,0.4)";
-    }, 1500); 
+        if (navigator.vibrate) navigator.vibrate(100);
+        privateModal.classList.replace('hidden', 'active');
+        protectionLayer.style.backdropFilter = "blur(15px)";
+        protectionLayer.style.background = "rgba(0,0,0,0.5)";
+    }, 1500);
 }
 
-function cancelHoldTimer() {
-    // యూజర్ 1.5s కంటే ముందే వేలు తీసేస్తే టైమర్ క్యాన్సిల్ అవుతుంది
-    clearTimeout(holdTimer);
-}
+userHeader.addEventListener('mousedown', triggerPrivateMode);
+userHeader.addEventListener('touchstart', triggerPrivateMode);
+userHeader.addEventListener('mouseup', () => clearTimeout(holdTimer));
+userHeader.addEventListener('touchend', () => clearTimeout(holdTimer));
 
-// డెస్క్‌టాప్ (మౌస్) ఈవెంట్స్
-usernameTrigger.addEventListener('mousedown', startHoldTimer);
-usernameTrigger.addEventListener('mouseup', cancelHoldTimer);
-usernameTrigger.addEventListener('mouseleave', cancelHoldTimer);
-
-// మొబైల్ (టచ్) ఈవెంట్స్
-usernameTrigger.addEventListener('touchstart', startHoldTimer);
-usernameTrigger.addEventListener('touchend', cancelHoldTimer);
-usernameTrigger.addEventListener('touchcancel', cancelHoldTimer);
-
-/* =========================================
-   4. EXTRA FEATURES UI INTERACTIONS
-========================================= */
-
-// Private Chat పాపప్ క్లోజ్ చేయడం (తాత్కాలికంగా బయట క్లిక్ చేస్తే క్లోజ్ అయ్యేలా)
-privateAuthModal.addEventListener('click', (e) => {
-    if (e.target === privateAuthModal) {
-        privateAuthModal.classList.remove('active');
-        privateAuthModal.classList.add('hidden');
-        
-        // స్క్రీన్‌షాట్ ప్రొటెక్షన్ బ్లర్ తీసేయడం
-        protectionLayer.style.backdropFilter = "none";
-        protectionLayer.style.backgroundColor = "transparent";
-    }
+document.getElementById('cancel-private').addEventListener('click', () => {
+    privateModal.classList.replace('active', 'hidden');
+    protectionLayer.style.backdropFilter = "none";
+    protectionLayer.style.background = "none";
 });
 
-// డెలివరీ డాట్స్ యానిమేషన్ (Testing కోసం)
-// రియల్ టైమ్ డేటాబేస్ (Firebase) వాడేటప్పుడు ఈ డాట్స్ డైనమిక్ గా మారుతాయి
-const deliveryDots = document.querySelectorAll('.delivery-status');
-deliveryDots.forEach(dot => {
-    // ఇది కేవలం ఉదాహరణకి, మీ వెబ్‌సైట్‌లో ఇది బ్యాకెండ్ నుండి కంట్రోల్ అవుతుంది
-    dot.title = "Message Status"; 
+/* =========================================
+   5. WEBRTC VIDEO CALLING (BASIC SETUP)
+========================================= */
+let localStream;
+let peerConnection;
+const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }] };
+
+async function startCall(type) {
+    document.getElementById('webrtc-call-screen').classList.replace('hidden', 'active');
+    document.getElementById('call-status-text').innerText = "Ringing...";
+    
+    localStream = await navigator.mediaDevices.getUserMedia({ video: type === 'video', audio: true });
+    document.getElementById('local-video').srcObject = localStream;
+
+    // WebRTC Signaling Logic (Supabase Realtime ద్వారా ఇక్కడ కనెక్ట్ చేయాలి)
+    console.log("WebRTC Initialized for " + type);
+}
+
+document.getElementById('start-video-call').addEventListener('click', () => startCall('video'));
+document.getElementById('end-call-btn').addEventListener('click', () => {
+    localStream.getTracks().forEach(track => track.stop());
+    document.getElementById('webrtc-call-screen').classList.replace('active', 'hidden');
 });
