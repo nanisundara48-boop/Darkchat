@@ -4,44 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Privacy Messenger | NC</title>
-    <!-- ఐకాన్స్ కోసం FontAwesome -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. స్క్రీన్‌షాట్ ప్రొటెక్షన్ లేయర్ (ఇది UIని బ్లాక్ చేయకుండా CSSలో ప్లాన్ చేస్తాం) -->
-    <div id="screenshot-protection-layer" class="overlay-hidden"></div>
+    <div id="screenshot-protection-layer"></div>
 
-    <!-- 2. ఆథరైజేషన్ / లాగిన్ పేజీ (Cat Animation తో) -->
-    <section id="auth-section" class="screen active">
+    <section id="auth-screen" class="screen active">
         <div class="auth-container">
             <div class="cat-animation-wrapper">
-                <!-- క్యాట్ పుల్లింగ్ యానిమేషన్ కోసం ప్లేస్‌హోల్డర్ -->
                 <div class="cat-head"></div>
                 <div class="cat-paws"></div>
             </div>
             
             <div class="auth-form-box">
-                <h2>Welcome</h2>
+                <h2 class="gradient-text">Welcome</h2>
+                
                 <div id="new-user-form">
                     <input type="text" id="reg-username" placeholder="Choose Username" required>
                     <input type="email" id="reg-email" placeholder="Email Address" required>
                     <input type="password" id="reg-pass" placeholder="Set Password" required>
-                    <button class="btn-primary" onclick="generateID()">Generate #ID & Enter</button>
+                    <button type="button" class="btn-primary" id="btn-register">Generate #ID & Enter</button>
                 </div>
                 
-                <div id="existing-user-form" style="display: none;">
-                    <input type="text" id="login-id" placeholder="Email or #ID" required>
+                <div id="existing-user-form" class="hidden">
+                    <input type="email" id="login-email" placeholder="Email Address" required>
                     <input type="password" id="login-pass" placeholder="Password" required>
-                    <button class="btn-primary" onclick="loginUser()">Login</button>
+                    <button type="button" class="btn-primary" id="btn-login">Login</button>
                 </div>
-                <p class="toggle-text" onclick="toggleAuth()">Already have an account? Login</p>
+                
+                <p class="toggle-text" id="toggle-auth-btn">Already have an account? Login</p>
             </div>
         </div>
     </section>
 
-    <!-- 3. NC లోడింగ్ యానిమేషన్ (లాగిన్ తర్వాత వస్తుంది) -->
     <section id="nc-loading-screen" class="screen hidden">
         <div class="loader-content">
             <div class="nc-spinner"></div>
@@ -49,85 +50,48 @@
         </div>
     </section>
 
-    <!-- 4. ప్రధాన యాప్ ఇంటర్‌ఫేస్ -->
     <section id="main-app-interface" class="screen hidden">
         
-        <!-- యాప్ హెడర్ -->
         <header class="app-header">
             <div class="header-left">
-                <i class="fa-solid fa-qrcode pip-icon" id="qr-trigger" title="Your QR Code"></i>
+                <i class="fa-solid fa-qrcode pip-icon" id="qr-trigger"></i>
                 <div class="profile-pic-container">
-                    <img src="default-dp.jpg" alt="Profile" class="user-dp">
-                    <i class="fa-solid fa-star glowing-star hidden" title="Premium User"></i>
+                    <img src="https://via.placeholder.com/40" alt="Profile" class="user-dp" id="my-profile-pic">
+                    <i class="fa-solid fa-star glowing-star hidden" id="premium-badge"></i>
                 </div>
-                <!-- 1.5 సెకన్ల హోల్డ్ ఫీచర్ కోసం ఈ ఐడి వాడతాం -->
-                <h3 id="main-username" class="gradient-username">User#1234</h3>
+                <h3 id="main-username" class="gradient-username">Loading...</h3>
             </div>
             
             <div class="header-right">
                 <i class="fa-solid fa-magnifying-glass header-icon" id="search-trigger"></i>
                 <div class="notification-wrapper header-icon" id="notif-trigger">
                     <i class="fa-solid fa-bell"></i>
-                    <span class="notif-dot">3</span>
+                    <span class="notif-dot hidden" id="notif-count">0</span>
                 </div>
                 <i class="fa-solid fa-bars header-icon" id="settings-trigger"></i>
             </div>
         </header>
 
-        <!-- డైనమిక్ కంటెంట్ ఏరియా (మధ్య భాగం) -->
         <main id="app-content">
             
-            <!-- CHATS TAB -->
             <div id="tab-chats" class="tab-content active">
-                <div class="chat-list">
-                    <!-- ఒక చాట్ ఐటెమ్ శాంపిల్ -->
-                    <div class="chat-list-item">
-                        <img src="friend1.jpg" alt="Friend" class="chat-dp">
-                        <div class="chat-info">
-                            <h4>Friend_Name <span class="delivery-status green-dot"></span></h4>
-                            <p>Hi, are we playing today?</p>
-                        </div>
-                        <div class="chat-meta">
-                            <span class="time">10:45 AM</span>
-                            <!-- కొత్త మెసేజ్ కౌంట్ -->
-                            <span class="msg-count">1</span> 
-                        </div>
+                <div class="chat-list" id="chat-list-container">
                     </div>
-                </div>
             </div>
 
-            <!-- GLIMPSE TAB -->
             <div id="tab-glimpse" class="tab-content hidden">
-                <div class="glimpse-list">
-                    <!-- గ్లింప్స్ ఐటెమ్ -->
-                    <div class="glimpse-item">
-                        <div class="glimpse-border unread">
-                            <img src="friend2.jpg" alt="Friend">
-                        </div>
-                        <p>Friend_Name</p>
-                        <span class="glimpse-time">2 hrs ago</span>
+                <div class="glimpse-list" id="glimpse-list-container">
                     </div>
-                </div>
-                <!-- ఫ్లోటింగ్ కెమెరా ఐకాన్ -->
-                <button class="floating-cam-btn">
+                <button class="floating-cam-btn" id="open-glimpse-cam">
                     <i class="fa-solid fa-camera"></i>
                 </button>
             </div>
 
-            <!-- CALLS TAB -->
             <div id="tab-calls" class="tab-content hidden">
-                <div class="call-history-list">
-                    <div class="call-item">
-                        <div class="call-info">
-                            <h4>Friend_Name</h4>
-                            <p class="incoming"><i class="fa-solid fa-arrow-down-left"></i> Today, 9:30 AM (15:20)</p>
-                        </div>
-                        <i class="fa-solid fa-phone quick-call-icon"></i>
+                <div class="call-history-list" id="call-history-container">
                     </div>
-                </div>
             </div>
 
-            <!-- GAMES TAB -->
             <div id="tab-games" class="tab-content hidden">
                 <div class="games-container">
                     <div class="game-card">
@@ -135,13 +99,10 @@
                         <button class="play-bot-btn">Play vs Bot</button>
                         <button class="play-friend-btn">Play vs Friend</button>
                     </div>
-                    <!-- మరిన్ని గేమ్స్ ఇక్కడ వస్తాయి -->
                 </div>
             </div>
-
         </main>
 
-        <!-- ఫూటర్ నావిగేషన్ -->
         <footer class="app-footer smooth-edges">
             <div class="nav-btn active" data-target="tab-chats">
                 <i class="fa-solid fa-message"></i>
@@ -162,47 +123,56 @@
         </footer>
     </section>
 
-    <!-- 5. ఓవర్‌లేలు / పాపప్స్ (డిఫాల్ట్‌గా దాచబడ్డాయి) -->
-
-    <!-- సెర్చ్ ఓవర్‌లే -->
-    <div id="search-overlay" class="overlay hidden">
-        <input type="text" id="live-search-input" placeholder="Search 1 or 2 letters...">
-        <div id="search-results">
-            <!-- సెర్చ్ రిజల్ట్స్ (Add+ బటన్ తో) ఇక్కడ వస్తాయి -->
+    <div id="active-chat-screen" class="screen hidden">
+        <header class="chat-header">
+            <i class="fa-solid fa-arrow-left" id="back-to-chats"></i>
+            <img src="https://via.placeholder.com/40" class="chat-dp-small" id="active-chat-dp">
+            <h3 class="chat-username" id="active-chat-name">Friend</h3>
+            <div class="chat-actions">
+                <i class="fa-solid fa-phone" id="start-voice-call"></i>
+                <i class="fa-solid fa-video" id="start-video-call"></i>
+                <i class="fa-solid fa-ellipsis-vertical" id="chat-settings"></i>
+            </div>
+        </header>
+        <div class="chat-messages-area" id="messages-container">
+            </div>
+        <div class="chat-input-area">
+            <i class="fa-solid fa-paperclip"></i>
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <i class="fa-solid fa-paper-plane" id="send-msg-btn"></i>
         </div>
     </div>
 
-    <!-- ప్రైవేట్ చాట్ అన్‌లాక్ (పిన్/ప్యాట్రన్) -->
+    <div id="webrtc-call-screen" class="overlay hidden">
+        <div class="call-ui-container">
+            <video id="remote-video" autoplay playsinline></video>
+            
+            <div class="local-video-wrapper">
+                <video id="local-video" autoplay muted playsinline></video>
+            </div>
+            
+            <div class="call-info-top">
+                <img src="https://via.placeholder.com/60" class="caller-dp" id="caller-dp">
+                <h3 id="call-status-text">Connecting...</h3>
+            </div>
+            
+            <div class="call-controls">
+                <div class="control-btn" id="mute-audio"><i class="fa-solid fa-microphone"></i></div>
+                <div class="control-btn end-call" id="end-call-btn"><i class="fa-solid fa-phone-slash"></i></div>
+                <div class="control-btn" id="switch-camera"><i class="fa-solid fa-camera-rotate"></i></div>
+            </div>
+        </div>
+    </div>
+
     <div id="private-auth-modal" class="overlay hidden love-ui">
         <div class="pin-box">
             <h3>Enter Secret Pattern</h3>
             <div class="pattern-grid">
-                <!-- ప్యాట్రన్ డాట్స్ -->
-            </div>
+                </div>
+            <button class="btn-primary" id="cancel-private">Cancel</button>
         </div>
     </div>
 
-    <!-- చాట్ ఇంటర్‌ఫేస్ (చాట్ ఓపెన్ చేసినప్పుడు) -->
-    <div id="active-chat-screen" class="screen hidden">
-        <header class="chat-header">
-            <i class="fa-solid fa-arrow-left" id="back-to-chats"></i>
-            <img src="friend1.jpg" class="chat-dp-small">
-            <h3 class="chat-username">Friend_Name</h3>
-            <div class="chat-actions">
-                <i class="fa-solid fa-phone"></i>
-                <i class="fa-solid fa-video"></i>
-                <i class="fa-solid fa-ellipsis-vertical"></i> <!-- దీంట్లో Move to Dark/Public ఉంటాయి -->
-            </div>
-        </header>
-        <div class="chat-messages-area">
-            <!-- మెసేజ్‌లు (టైమ్ స్టాంప్, డెలివరీ డాట్స్ తో) ఇక్కడ వస్తాయి -->
-        </div>
-        <div class="chat-input-area">
-            <i class="fa-solid fa-paperclip"></i>
-            <input type="text" placeholder="Type a message...">
-            <i class="fa-solid fa-microphone"></i>
-        </div>
-    </div>
-
+    <script src="script.js"></script>
 </body>
 </html>
